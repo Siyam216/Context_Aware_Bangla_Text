@@ -1,0 +1,32 @@
+# Python Virtual Environment
+.venv/
+env/
+venv/
+ENV/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# IDE & Editor Configs
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS Generated
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Large Model Checkpoints & Temporary Artifacts (Prevent GitHub 100MB block)
+Project files/saved_models/banglabert/
+*.tar.gz
+*.zip

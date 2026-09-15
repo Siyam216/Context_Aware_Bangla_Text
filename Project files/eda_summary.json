@@ -1,0 +1,821 @@
+{
+  "sentiment": {
+    "splits": {
+      "train": {
+        "total_rows": 109229,
+        "counts": {
+          "Positive": 97834,
+          "Negative": 6686,
+          "Neutral": 4709
+        },
+        "percentages": {
+          "Positive": 89.57,
+          "Negative": 6.12,
+          "Neutral": 4.31
+        }
+      },
+      "val": {
+        "total_rows": 15569,
+        "counts": {
+          "Positive": 13947,
+          "Negative": 954,
+          "Neutral": 668
+        },
+        "percentages": {
+          "Positive": 89.58,
+          "Negative": 6.13,
+          "Neutral": 4.29
+        }
+      },
+      "test": {
+        "total_rows": 31212,
+        "counts": {
+          "Positive": 27961,
+          "Negative": 1905,
+          "Neutral": 1346
+        },
+        "percentages": {
+          "Positive": 89.58,
+          "Negative": 6.1,
+          "Neutral": 4.31
+        }
+      }
+    },
+    "train_text_stats": {
+      "word_count": {
+        "min": 0,
+        "max": 73,
+        "mean": 18.1,
+        "median": 10.0,
+        "std": 16.95,
+        "p95": 45.0
+      },
+      "char_count": {
+        "min": 2,
+        "max": 275,
+        "mean": 109.24,
+        "median": 60.0
+      }
+    },
+    "vocabulary_stats": {
+      "total_tokens": 1976807,
+      "unique_vocabulary_size": 104135,
+      "type_token_ratio_ttr": 0.0527
+    },
+    "top_unigrams": [
+      {
+        "word": "বই",
+        "count": 44626
+      },
+      {
+        "word": "এই",
+        "count": 25970
+      },
+      {
+        "word": "বইটি",
+        "count": 24827
+      },
+      {
+        "word": "জন্য",
+        "count": 18364
+      },
+      {
+        "word": "ভালো",
+        "count": 16904
+      },
+      {
+        "word": "না",
+        "count": 14840
+      },
+      {
+        "word": "ভাল",
+        "count": 14641
+      },
+      {
+        "word": "এবং",
+        "count": 13892
+      },
+      {
+        "word": "খুব",
+        "count": 13069
+      },
+      {
+        "word": "সুন্দর",
+        "count": 9813
+      },
+      {
+        "word": "একটা",
+        "count": 9464
+      },
+      {
+        "word": "অসাধারণ",
+        "count": 9288
+      },
+      {
+        "word": "কিছু",
+        "count": 8384
+      },
+      {
+        "word": "এটি",
+        "count": 8344
+      },
+      {
+        "word": "এক",
+        "count": 8211
+      },
+      {
+        "word": "হয়েছে",
+        "count": 7577
+      },
+      {
+        "word": "লেখক",
+        "count": 7283
+      },
+      {
+        "word": "পড়ে",
+        "count": 7171
+      },
+      {
+        "word": "নিয়ে",
+        "count": 7133
+      },
+      {
+        "word": "বইয়ের",
+        "count": 6385
+      }
+    ],
+    "top_bigrams": [
+      {
+        "ngram": "এই বইটি",
+        "count": 7672
+      },
+      {
+        "ngram": "একটা বই",
+        "count": 3880
+      },
+      {
+        "ngram": "ভাল বই",
+        "count": 2859
+      },
+      {
+        "ngram": "খুব ভালো",
+        "count": 2710
+      },
+      {
+        "ngram": "অসাধারণ বই",
+        "count": 2424
+      },
+      {
+        "ngram": "এই বই",
+        "count": 2379
+      },
+      {
+        "ngram": "সুন্দর বই",
+        "count": 2257
+      },
+      {
+        "ngram": "ভালো বই",
+        "count": 2239
+      },
+      {
+        "ngram": "ভালো লেগেছে",
+        "count": 2172
+      },
+      {
+        "ngram": "দুর্দান্ত বই",
+        "count": 2092
+      },
+      {
+        "ngram": "বইটি পড়ে",
+        "count": 2036
+      },
+      {
+        "ngram": "সেরা বই",
+        "count": 1796
+      },
+      {
+        "ngram": "খুব ভাল",
+        "count": 1735
+      },
+      {
+        "ngram": "খুব সুন্দর",
+        "count": 1724
+      },
+      {
+        "ngram": "আশা করি",
+        "count": 1433
+      },
+      {
+        "ngram": "এই বইটা",
+        "count": 1299
+      },
+      {
+        "ngram": "এক কথায়",
+        "count": 1279
+      },
+      {
+        "ngram": "এই বইয়ের",
+        "count": 1243
+      },
+      {
+        "ngram": "খুবই ভালো",
+        "count": 1105
+      },
+      {
+        "ngram": "এই বইটিতে",
+        "count": 936
+      }
+    ],
+    "top_trigrams": [
+      {
+        "ngram": "অসাধারণ একটা বই",
+        "count": 780
+      },
+      {
+        "ngram": "খুব ভাল বই",
+        "count": 682
+      },
+      {
+        "ngram": "এক কথায় অসাধারণ",
+        "count": 560
+      },
+      {
+        "ngram": "ভালো একটা বই",
+        "count": 538
+      },
+      {
+        "ngram": "সুন্দর একটা বই",
+        "count": 460
+      },
+      {
+        "ngram": "খুব সুন্দর বই",
+        "count": 457
+      },
+      {
+        "ngram": "এই বইটি পড়ে",
+        "count": 431
+      },
+      {
+        "ngram": "খুব ভালো বই",
+        "count": 415
+      },
+      {
+        "ngram": "জন্য এই বইটি",
+        "count": 392
+      },
+      {
+        "ngram": "খুব ভালো লেগেছে",
+        "count": 383
+      }
+    ],
+    "data_leakage": {
+      "train_unique_texts": 70765,
+      "test_unique_texts": 22803,
+      "overlap_count": 5791,
+      "leakage_percentage": 25.4,
+      "status": "WARNING"
+    }
+  },
+  "sarcasm": {
+    "splits": {
+      "train": {
+        "total_rows": 9671,
+        "counts": {
+          "Non-Sarcastic": 6461,
+          "Sarcastic": 3210
+        },
+        "percentages": {
+          "Non-Sarcastic": 66.81,
+          "Sarcastic": 33.19
+        }
+      },
+      "val": {
+        "total_rows": 1209,
+        "counts": {
+          "Non-Sarcastic": 808,
+          "Sarcastic": 401
+        },
+        "percentages": {
+          "Non-Sarcastic": 66.83,
+          "Sarcastic": 33.17
+        }
+      },
+      "test": {
+        "total_rows": 1209,
+        "counts": {
+          "Non-Sarcastic": 808,
+          "Sarcastic": 401
+        },
+        "percentages": {
+          "Non-Sarcastic": 66.83,
+          "Sarcastic": 33.17
+        }
+      }
+    },
+    "train_text_stats": {
+      "word_count": {
+        "min": 1,
+        "max": 187,
+        "mean": 13.51,
+        "median": 11.0,
+        "std": 10.13,
+        "p95": 32.0
+      },
+      "char_count": {
+        "min": 4,
+        "max": 1008,
+        "mean": 78.99,
+        "median": 64.0
+      }
+    },
+    "vocabulary_stats": {
+      "total_tokens": 130611,
+      "unique_vocabulary_size": 20339,
+      "type_token_ratio_ttr": 0.1557
+    },
+    "top_unigrams": [
+      {
+        "word": "না",
+        "count": 2330
+      },
+      {
+        "word": "এই",
+        "count": 1094
+      },
+      {
+        "word": "জন্য",
+        "count": 909
+      },
+      {
+        "word": "কি",
+        "count": 767
+      },
+      {
+        "word": "ভালো",
+        "count": 595
+      },
+      {
+        "word": "করতে",
+        "count": 583
+      },
+      {
+        "word": "ভাই",
+        "count": 549
+      },
+      {
+        "word": "একটা",
+        "count": 529
+      },
+      {
+        "word": "কিছু",
+        "count": 503
+      },
+      {
+        "word": "কথা",
+        "count": 491
+      },
+      {
+        "word": "নাই",
+        "count": 462
+      },
+      {
+        "word": "নিয়ে",
+        "count": 459
+      },
+      {
+        "word": "এবং",
+        "count": 456
+      },
+      {
+        "word": "কিন্তু",
+        "count": 431
+      },
+      {
+        "word": "মানুষ",
+        "count": 426
+      },
+      {
+        "word": "পারে",
+        "count": 396
+      },
+      {
+        "word": "যায়",
+        "count": 385
+      },
+      {
+        "word": "সাথে",
+        "count": 357
+      },
+      {
+        "word": "এটা",
+        "count": 351
+      },
+      {
+        "word": "এখন",
+        "count": 321
+      }
+    ],
+    "top_bigrams": [
+      {
+        "ngram": "করতে পারে",
+        "count": 84
+      },
+      {
+        "ngram": "যায় না",
+        "count": 66
+      },
+      {
+        "ngram": "পারে না",
+        "count": 63
+      },
+      {
+        "ngram": "খুব ভালো",
+        "count": 47
+      },
+      {
+        "ngram": "শেখ হাসিনা",
+        "count": 44
+      },
+      {
+        "ngram": "আশা করি",
+        "count": 38
+      },
+      {
+        "ngram": "ভালো লাগে",
+        "count": 36
+      },
+      {
+        "ngram": "এই ধরনের",
+        "count": 35
+      },
+      {
+        "ngram": "কিছু না",
+        "count": 33
+      },
+      {
+        "ngram": "আওয়ামী লীগ",
+        "count": 30
+      },
+      {
+        "ngram": "দান করুন",
+        "count": 30
+      },
+      {
+        "ngram": "পাওয়া যায়",
+        "count": 29
+      },
+      {
+        "ngram": "যাবে না",
+        "count": 29
+      },
+      {
+        "ngram": "এটাই বাস্তব",
+        "count": 28
+      },
+      {
+        "ngram": "হা হা",
+        "count": 27
+      },
+      {
+        "ngram": "পারবে না",
+        "count": 27
+      },
+      {
+        "ngram": "করতে না",
+        "count": 26
+      },
+      {
+        "ngram": "ভালো লাগলো",
+        "count": 26
+      },
+      {
+        "ngram": "জয় বাংলা",
+        "count": 25
+      },
+      {
+        "ngram": "ঠিক না",
+        "count": 25
+      }
+    ],
+    "top_trigrams": [
+      {
+        "ngram": "স্বজন হারানোর বেদনা",
+        "count": 14
+      },
+      {
+        "ngram": "করতে পারে না",
+        "count": 12
+      },
+      {
+        "ngram": "নেক হায়াত দান",
+        "count": 11
+      },
+      {
+        "ngram": "হায়াত দান করুক",
+        "count": 10
+      },
+      {
+        "ngram": "জোর দাবি জানাচ্ছি",
+        "count": 10
+      },
+      {
+        "ngram": "হা হা হা",
+        "count": 10
+      },
+      {
+        "ngram": "ভালো লাগে না",
+        "count": 9
+      },
+      {
+        "ngram": "কল্পনার জন্য মিলে",
+        "count": 8
+      },
+      {
+        "ngram": "করতে পারবে না",
+        "count": 8
+      },
+      {
+        "ngram": "চরম মূল্য দিতে",
+        "count": 8
+      }
+    ],
+    "data_leakage": {
+      "train_unique_texts": 9576,
+      "test_unique_texts": 1208,
+      "overlap_count": 16,
+      "leakage_percentage": 1.32,
+      "status": "PASS (Clean Split)"
+    }
+  },
+  "hate_speech": {
+    "splits": {
+      "train": {
+        "total_rows": 40217,
+        "counts": {
+          "Non-Hate": 20893,
+          "Hate Speech": 19324
+        },
+        "percentages": {
+          "Non-Hate": 51.95,
+          "Hate Speech": 48.05
+        }
+      },
+      "val": {
+        "total_rows": 5027,
+        "counts": {
+          "Non-Hate": 2611,
+          "Hate Speech": 2416
+        },
+        "percentages": {
+          "Non-Hate": 51.94,
+          "Hate Speech": 48.06
+        }
+      },
+      "test": {
+        "total_rows": 5028,
+        "counts": {
+          "Non-Hate": 2612,
+          "Hate Speech": 2416
+        },
+        "percentages": {
+          "Non-Hate": 51.95,
+          "Hate Speech": 48.05
+        }
+      }
+    },
+    "train_text_stats": {
+      "word_count": {
+        "min": 1,
+        "max": 552,
+        "mean": 13.16,
+        "median": 8.0,
+        "std": 18.02,
+        "p95": 38.0
+      },
+      "char_count": {
+        "min": 2,
+        "max": 3091,
+        "mean": 72.23,
+        "median": 44.0
+      }
+    },
+    "vocabulary_stats": {
+      "total_tokens": 529163,
+      "unique_vocabulary_size": 52453,
+      "type_token_ratio_ttr": 0.0991
+    },
+    "top_unigrams": [
+      {
+        "word": "না",
+        "count": 8451
+      },
+      {
+        "word": "এই",
+        "count": 6399
+      },
+      {
+        "word": "কি",
+        "count": 4775
+      },
+      {
+        "word": "একটা",
+        "count": 2780
+      },
+      {
+        "word": "কথা",
+        "count": 2556
+      },
+      {
+        "word": "তুই",
+        "count": 2213
+      },
+      {
+        "word": "তোর",
+        "count": 2139
+      },
+      {
+        "word": "ভালো",
+        "count": 2091
+      },
+      {
+        "word": "ভাই",
+        "count": 2077
+      },
+      {
+        "word": "জন্য",
+        "count": 2006
+      },
+      {
+        "word": "চাই",
+        "count": 1887
+      },
+      {
+        "word": "নাই",
+        "count": 1761
+      },
+      {
+        "word": "সাথে",
+        "count": 1720
+      },
+      {
+        "word": "বাচ্চা",
+        "count": 1678
+      },
+      {
+        "word": "মানুষ",
+        "count": 1643
+      },
+      {
+        "word": "কিছু",
+        "count": 1623
+      },
+      {
+        "word": "নিয়ে",
+        "count": 1520
+      },
+      {
+        "word": "করতে",
+        "count": 1368
+      },
+      {
+        "word": "দরকার",
+        "count": 1348
+      },
+      {
+        "word": "এক",
+        "count": 1326
+      }
+    ],
+    "top_bigrams": [
+      {
+        "ngram": "খানকির পোলা",
+        "count": 496
+      },
+      {
+        "ngram": "কুত্তার বাচ্চা",
+        "count": 425
+      },
+      {
+        "ngram": "ছি ছি",
+        "count": 220
+      },
+      {
+        "ngram": "হা হা",
+        "count": 205
+      },
+      {
+        "ngram": "এই রকম",
+        "count": 199
+      },
+      {
+        "ngram": "ফাঁসি চাই",
+        "count": 189
+      },
+      {
+        "ngram": "পারে না",
+        "count": 187
+      },
+      {
+        "ngram": "ফাসি চাই",
+        "count": 181
+      },
+      {
+        "ngram": "শাকিব খান",
+        "count": 180
+      },
+      {
+        "ngram": "জারজ সন্তান",
+        "count": 175
+      },
+      {
+        "ngram": "করতে পারে",
+        "count": 173
+      },
+      {
+        "ngram": "তুই একটা",
+        "count": 170
+      },
+      {
+        "ngram": "খুব ভালো",
+        "count": 169
+      },
+      {
+        "ngram": "দেখতে চাই",
+        "count": 153
+      },
+      {
+        "ngram": "গায়ে হাত",
+        "count": 152
+      },
+      {
+        "ngram": "বিচার চাই",
+        "count": 148
+      },
+      {
+        "ngram": "মাদার চোদ",
+        "count": 147
+      },
+      {
+        "ngram": "পোলা তুই",
+        "count": 143
+      },
+      {
+        "ngram": "মেরে ফেলা",
+        "count": 142
+      },
+      {
+        "ngram": "মাসুদ রানা",
+        "count": 141
+      }
+    ],
+    "top_trigrams": [
+      {
+        "ngram": "খানকির পোলা তুই",
+        "count": 127
+      },
+      {
+        "ngram": "তুই জারজ সন্তান",
+        "count": 115
+      },
+      {
+        "ngram": "পোলা তুই জারজ",
+        "count": 110
+      },
+      {
+        "ngram": "জারজ সন্তান খানকির",
+        "count": 110
+      },
+      {
+        "ngram": "সন্তান খানকির পোলা",
+        "count": 110
+      },
+      {
+        "ngram": "হা হা হা",
+        "count": 101
+      },
+      {
+        "ngram": "পাকিস্তান পাকিস্তান পাকিস্তান",
+        "count": 88
+      },
+      {
+        "ngram": "বাবার গায়ে হাত",
+        "count": 80
+      },
+      {
+        "ngram": "ছি ছি ছি",
+        "count": 66
+      },
+      {
+        "ngram": "না না না",
+        "count": 55
+      }
+    ],
+    "data_leakage": {
+      "train_unique_texts": 40169,
+      "test_unique_texts": 5027,
+      "overlap_count": 19,
+      "leakage_percentage": 0.38,
+      "status": "PASS (Clean Split)"
+    }
+  }
+}

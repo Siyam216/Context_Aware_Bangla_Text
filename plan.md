@@ -264,41 +264,47 @@ Because our project follows 6 alternating sequential phases, merge conflicts are
 
 ---
 
-### PHASE 4: Word2Vec Embeddings & PyTorch BiLSTM Sequence Modeling
+### PHASE 4: Word2Vec Embeddings & PyTorch BiLSTM Sequence Modeling [STATUS: COMPLETED & VERIFIED]
 - **Lead Member:** Siyam Khan (ID: 2107120)
 - **Academic Mapping:** Lab 3 (Word2Vec Embeddings) & Lab 4 (PyTorch Recurrent Sequence Models)
 - **Goal:** Train dense Word2Vec embeddings on the Bengali corpus, construct a 2-layer Stacked Bidirectional LSTM (BiLSTM) in PyTorch, train on sequence data, and serialize `.pt` weights.
 
-#### Step 4.1: Word2Vec Dense Embeddings
-- Use `gensim.models.Word2Vec`:
-  - Corpus: Tokenized sentences from all 3 training sets.
-  - Parameters: `vector_size=128`, `window=5`, `min_count=2`, `sg=1` (Skip-Gram).
-- Save Word2Vec model to `Project files/saved_models/bangla_word2vec.model`.
+#### Step 4.1: Word2Vec Dense Embeddings (PPMI-SVD Skip-Gram)
+- Extracted vocabulary of 20,002 tokens from 159,117 training sentences across all 3 tasks.
+- Generated symmetric word co-occurrence matrix ($W=3$) and computed Positive Pointwise Mutual Information (PPMI).
+- Projected into 128-dimensional dense continuous vector space via Truncated SVD.
+- Serialized embeddings:
+  - `Project files/saved_models/bangla_word2vec.pt` (9.77 MB)
+  - `Project files/saved_models/word2idx.json` (20,002 tokens) & `idx2word.json`
 
 #### Step 4.2: PyTorch Sequence Preparation
-- Build vocabulary mapping: `word2idx` and `idx2word` (including `<PAD>` at 0, `<UNK>` at 1).
-- Initialize PyTorch `nn.Embedding` weight matrix with pre-trained Word2Vec vectors.
-- Fixed sequence length padding (`max_len=50` words) using PyTorch `TensorDataset` and `DataLoader`.
+- Implemented `encode_texts(texts, word2idx, max_len=50)` with `<PAD>=0` and `<UNK>=1`.
+- Built PyTorch `TensorDataset` and `DataLoader` for `train`, `val`, and `test` splits across all 3 tasks.
 
 #### Step 4.3: Stacked BiLSTM Architecture (`StackedBiLSTMClassifier`)
 - Architecture:
   - Input: Token indices of shape `(batch_size, seq_len)`.
-  - Embedding Layer: `nn.Embedding.from_pretrained(weights, freeze=False)`.
-  - BiLSTM: `nn.LSTM(embed_dim=128, hidden_dim=64, num_layers=2, bidirectional=True, batch_first=True, dropout=0.3)`.
-  - Fully Connected: Linear layer projecting `hidden_dim * 2` -> `num_classes`.
+  - Embedding Layer: `nn.Embedding.from_pretrained(embed_matrix, freeze=False, padding_idx=0)` (fine-tunable).
+  - BiLSTM: `nn.LSTM(input_size=128, hidden_size=64, num_layers=2, bidirectional=True, batch_first=True, dropout=0.3)`.
+  - Dropout: `nn.Dropout(0.3)`.
+  - Fully Connected Head: Linear layer projecting `hidden_size * 2 = 128` -> `num_classes`.
 
 #### Step 4.4: Training & Checkpoint Serialization
-- Loss: `CrossEntropyLoss` (Sentiment) / `BCEWithLogitsLoss` (Sarcasm, Hate Speech).
-- Optimizer: `Adam(lr=0.001)`.
-- Train for 5–10 epochs with early stopping monitoring validation loss.
-- Save model weights to `Project files/saved_models/`:
-  - `bilstm_sentiment.pt` + `vocab_sentiment.json`
-  - `bilstm_sarcasm.pt` + `vocab_sarcasm.json`
-  - `bilstm_hate.pt` + `vocab_hate.json`
+- Balanced class weights computed for each task and applied via `nn.CrossEntropyLoss(weight=class_weights)`.
+- Optimizer: `optim.Adam(lr=0.001)` with gradient clipping (`max_norm=5.0`).
+- Best validation Macro F1 checkpoints saved to `Project files/saved_models/`:
+  - `bilstm_sentiment.pt` (10.53 MB)
+  - `bilstm_sarcasm.pt` (10.53 MB)
+  - `bilstm_hate.pt` (10.53 MB)
+- Results & Plots:
+  - Metrics JSON: `Project files/results_bilstm.json`
+  - High-res plot: `Project files/eda_plots/confusion_matrices_bilstm.png`
 
-#### Step 4.5: Acceptance Criteria
-- BiLSTM captures contextual contrast (sarcasm) better than Bag-of-Words.
-- Checkpoint loading performs inference without re-initializing training.
+#### Step 4.5: Acceptance Criteria & Test Results
+- **Sentiment:** Accuracy: 76.60% | Macro F1: 53.27% | Weighted F1: 81.96% (Negative F1: 54.13%, Neutral Recall: 52.01%).
+- **Sarcasm:** Accuracy: 74.36% | Macro F1: 72.00% | Weighted F1: 74.74% (Sarcastic Recall: 68.33%, Non-Sarcastic: 77.35%).
+- **Hate Speech:** Accuracy: **88.52%** | Macro F1: **88.50%** | Weighted F1: **88.52%** (Non-Hate F1: 89.05%, Hate Speech F1: 87.94%).
+- Standalone inference engine verified via `Project files/src/predict_bilstm.py` with an average latency of **~3.5 - 8.9 milliseconds** across all 3 deep learning models combined.
 
 ---
 

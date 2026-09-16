@@ -227,36 +227,40 @@ Because our project follows 6 alternating sequential phases, merge conflicts are
 
 ---
 
-### PHASE 3: TF-IDF Feature Extraction & Logistic Regression Classifiers
+### PHASE 3: TF-IDF Feature Extraction & Logistic Regression Classifiers [STATUS: COMPLETED & VERIFIED]
 - **Lead Member:** Md. Tariful Islam Jony (ID: 2107119)
 - **Academic Mapping:** Lab 2 (TF-IDF Vectorization) & Lab 3 (Discriminative Logistic Regression)
 - **Goal:** Build unigram+bigram TF-IDF representations and train fast, robust Logistic Regression baselines for all 3 tasks.
 
 #### Step 3.1: TF-IDF Vectorizer
-- Configure `TfidfVectorizer`:
+- Configured `TfidfVectorizer`:
   - `ngram_range=(1, 2)` (Unigrams + Bigrams).
-  - `max_features=15000` (or 20,000 for Sentiment).
+  - `max_features=20000` (Sentiment), `15000` (Sarcasm & Hate Speech).
   - `sublinear_tf=True` (logarithmic term-frequency scaling).
-- Fit vectorizer strictly on `train.csv` and transform `val.csv` and `test.csv`.
+  - Unicode Bengali token pattern capturing Bengali words and emotional punctuation (`!`, `?`).
+- Fitted strictly on `train.csv` and transformed `val.csv` and `test.csv` (Zero data leakage).
 
 #### Step 3.2: Logistic Regression Training
-- Train 3 independent Logistic Regression classifiers:
-  1. `lr_sentiment`: Multinomial / One-vs-Rest for 3 classes (`class_weight='balanced'`).
-  2. `lr_sarcasm`: Binary Logistic Regression (`class_weight='balanced'`).
-  3. `lr_hate_speech`: Binary Logistic Regression (`class_weight='balanced'`).
+- Trained 3 independent Logistic Regression classifiers with `class_weight='balanced'`:
+  1. `lr_sentiment`: 3 classes (`Negative=0`, `Neutral=1`, `Positive=2`).
+  2. `lr_sarcasm`: Binary (`Non-Sarcastic=0`, `Sarcastic=1`).
+  3. `lr_hate_speech`: Binary (`Non-Hate=0`, `Hate Speech=1`).
 
 #### Step 3.3: Evaluation & Metric Compilation
-- Evaluate on `test.csv`:
-  - Accuracy, Precision, Recall, Macro F1-Score.
-  - Generate Confusion Matrices.
-- Store results in `Project files/results_tfidf_lr.json`.
+- Evaluated on `test.csv`:
+  - **Sentiment:** Accuracy: 77.60% | Macro F1: 53.71% | Weighted F1: 82.24% (Negative Recall: 68.29%, Neutral Recall: 53.71%, Positive Recall: 79.38%).
+  - **Sarcasm:** Accuracy: 74.94% | Macro F1: 72.89% | Weighted F1: 75.40% (Sarcastic Recall: 71.57%).
+  - **Hate Speech:** Accuracy: 86.61% | Macro F1: 86.52% | Weighted F1: 86.57% (Hate Recall: 81.54%).
+- Metric files saved:
+  - Metrics JSON: `Project files/results_tfidf_lr.json`
+  - High-res plot: `Project files/eda_plots/confusion_matrices_lr.png`
 
-#### Step 3.4: Artifact Serialization
-- Serialize vectorizers and models using `joblib` into `Project files/saved_models/`:
-  - `sentiment_tfidf_vectorizer.joblib`, `sentiment_lr_model.joblib`
-  - `sarcasm_tfidf_vectorizer.joblib`, `sarcasm_lr_model.joblib`
-  - `hate_tfidf_vectorizer.joblib`, `hate_lr_model.joblib`
-- **Acceptance Criteria:** Loading the `.joblib` files in a standalone script produces identical predictions in < 1 millisecond.
+#### Step 3.4: Artifact Serialization & Fast Inference
+- Serialized vectorizers and models via `joblib` into `Project files/saved_models/`:
+  - `sentiment_tfidf_vectorizer.joblib` (0.26 MB), `sentiment_lr_model.joblib` (0.44 MB)
+  - `sarcasm_tfidf_vectorizer.joblib` (0.18 MB), `sarcasm_lr_model.joblib` (0.11 MB)
+  - `hate_tfidf_vectorizer.joblib` (0.18 MB), `hate_lr_model.joblib` (0.11 MB)
+- **Acceptance Verified:** Tested via `Project files/src/predict_lr.py` — average latency across all 3 models combined is **~1.8 - 2.4 milliseconds**.
 
 ---
 

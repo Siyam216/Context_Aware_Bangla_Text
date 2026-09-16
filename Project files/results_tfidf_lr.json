@@ -1,0 +1,144 @@
+{
+  "sentiment": {
+    "task": "sentiment",
+    "vocab_size": 20000,
+    "vectorization_time_sec": 7.92,
+    "training_time_sec": 6.74,
+    "validation_metrics": {
+      "accuracy": 0.7734,
+      "macro_precision": 0.5049,
+      "macro_recall": 0.6646,
+      "macro_f1": 0.5331
+    },
+    "test_metrics": {
+      "accuracy": 0.776,
+      "macro_precision": 0.5078,
+      "macro_recall": 0.6713,
+      "macro_f1": 0.5371,
+      "weighted_f1": 0.8224,
+      "class_wise": {
+        "Negative": {
+          "precision": 0.415,
+          "recall": 0.6829,
+          "f1_score": 0.5163,
+          "support": 1905
+        },
+        "Neutral": {
+          "precision": 0.1407,
+          "recall": 0.5371,
+          "f1_score": 0.2229,
+          "support": 1346
+        },
+        "Positive": {
+          "precision": 0.9677,
+          "recall": 0.7938,
+          "f1_score": 0.8721,
+          "support": 27961
+        }
+      }
+    },
+    "confusion_matrix": [
+      [
+        1301,
+        266,
+        338
+      ],
+      [
+        219,
+        723,
+        404
+      ],
+      [
+        1615,
+        4151,
+        22195
+      ]
+    ]
+  },
+  "sarcasm": {
+    "task": "sarcasm",
+    "vocab_size": 15000,
+    "vectorization_time_sec": 0.65,
+    "training_time_sec": 0.03,
+    "validation_metrics": {
+      "accuracy": 0.7593,
+      "macro_precision": 0.733,
+      "macro_recall": 0.749,
+      "macro_f1": 0.7384
+    },
+    "test_metrics": {
+      "accuracy": 0.7494,
+      "macro_precision": 0.7237,
+      "macro_recall": 0.7409,
+      "macro_f1": 0.7289,
+      "weighted_f1": 0.754,
+      "class_wise": {
+        "Non-Sarcastic": {
+          "precision": 0.8445,
+          "recall": 0.7661,
+          "f1_score": 0.8034,
+          "support": 808
+        },
+        "Sarcastic": {
+          "precision": 0.6029,
+          "recall": 0.7157,
+          "f1_score": 0.6545,
+          "support": 401
+        }
+      }
+    },
+    "confusion_matrix": [
+      [
+        619,
+        189
+      ],
+      [
+        114,
+        287
+      ]
+    ]
+  },
+  "hate_speech": {
+    "task": "hate_speech",
+    "vocab_size": 15000,
+    "vectorization_time_sec": 2.27,
+    "training_time_sec": 0.13,
+    "validation_metrics": {
+      "accuracy": 0.8627,
+      "macro_precision": 0.8664,
+      "macro_recall": 0.8608,
+      "macro_f1": 0.8618
+    },
+    "test_metrics": {
+      "accuracy": 0.8661,
+      "macro_precision": 0.8696,
+      "macro_recall": 0.8642,
+      "macro_f1": 0.8652,
+      "weighted_f1": 0.8657,
+      "class_wise": {
+        "Non-Hate": {
+          "precision": 0.8425,
+          "recall": 0.9131,
+          "f1_score": 0.8764,
+          "support": 2612
+        },
+        "Hate Speech": {
+          "precision": 0.8967,
+          "recall": 0.8154,
+          "f1_score": 0.8541,
+          "support": 2416
+        }
+      }
+    },
+    "confusion_matrix": [
+      [
+        2385,
+        227
+      ],
+      [
+        446,
+        1970
+      ]
+    ]
+  }
+}

@@ -1,0 +1,236 @@
+[
+  {
+    "task": "Sentiment",
+    "model": "TF-IDF + Logistic Regression",
+    "accuracy": 77.6,
+    "macro_precision": 50.78,
+    "macro_recall": 67.13,
+    "macro_f1": 53.71,
+    "weighted_f1": 82.24,
+    "latency_ms": 2.1,
+    "class_wise": {
+      "Negative": {
+        "precision": 0.415,
+        "recall": 0.6829,
+        "f1_score": 0.5163,
+        "support": 1905
+      },
+      "Neutral": {
+        "precision": 0.1407,
+        "recall": 0.5371,
+        "f1_score": 0.2229,
+        "support": 1346
+      },
+      "Positive": {
+        "precision": 0.9677,
+        "recall": 0.7938,
+        "f1_score": 0.8721,
+        "support": 27961
+      }
+    }
+  },
+  {
+    "task": "Sentiment",
+    "model": "Word2Vec + Stacked BiLSTM",
+    "accuracy": 76.6,
+    "macro_precision": 52.75,
+    "macro_recall": 63.23,
+    "macro_f1": 53.27,
+    "weighted_f1": 81.96,
+    "latency_ms": 4.8,
+    "class_wise": {
+      "Negative": {
+        "precision": 0.5022,
+        "recall": 0.5869,
+        "f1_score": 0.5413,
+        "support": 1905
+      },
+      "Neutral": {
+        "precision": 0.1146,
+        "recall": 0.5201,
+        "f1_score": 0.1878,
+        "support": 1346
+      },
+      "Positive": {
+        "precision": 0.9656,
+        "recall": 0.79,
+        "f1_score": 0.869,
+        "support": 27961
+      }
+    }
+  },
+  {
+    "task": "Sentiment",
+    "model": "Fine-Tuned BanglaBERT",
+    "accuracy": 62.46,
+    "macro_precision": 41.95,
+    "macro_recall": 56.57,
+    "macro_f1": 40.75,
+    "weighted_f1": 70.95,
+    "latency_ms": 42.0,
+    "class_wise": {
+      "Negative": {
+        "precision": 0.217,
+        "recall": 0.6236,
+        "f1_score": 0.322,
+        "support": 1905
+      },
+      "Neutral": {
+        "precision": 0.0812,
+        "recall": 0.4398,
+        "f1_score": 0.1371,
+        "support": 1346
+      },
+      "Positive": {
+        "precision": 0.9602,
+        "recall": 0.6336,
+        "f1_score": 0.7634,
+        "support": 27961
+      }
+    }
+  },
+  {
+    "task": "Sarcasm",
+    "model": "TF-IDF + Logistic Regression",
+    "accuracy": 74.94,
+    "macro_precision": 72.37,
+    "macro_recall": 74.09,
+    "macro_f1": 72.89,
+    "weighted_f1": 75.4,
+    "latency_ms": 2.1,
+    "class_wise": {
+      "Non-Sarcastic": {
+        "precision": 0.8445,
+        "recall": 0.7661,
+        "f1_score": 0.8034,
+        "support": 808
+      },
+      "Sarcastic": {
+        "precision": 0.6029,
+        "recall": 0.7157,
+        "f1_score": 0.6545,
+        "support": 401
+      }
+    }
+  },
+  {
+    "task": "Sarcasm",
+    "model": "Word2Vec + Stacked BiLSTM",
+    "accuracy": 74.36,
+    "macro_precision": 71.53,
+    "macro_recall": 72.84,
+    "macro_f1": 72.0,
+    "weighted_f1": 74.74,
+    "latency_ms": 4.8,
+    "class_wise": {
+      "Non-Sarcastic": {
+        "precision": 0.8311,
+        "recall": 0.7735,
+        "f1_score": 0.8013,
+        "support": 808
+      },
+      "Sarcastic": {
+        "precision": 0.5996,
+        "recall": 0.6833,
+        "f1_score": 0.6387,
+        "support": 401
+      }
+    }
+  },
+  {
+    "task": "Sarcasm",
+    "model": "Fine-Tuned BanglaBERT",
+    "accuracy": 73.86,
+    "macro_precision": 72.34,
+    "macro_recall": 74.92,
+    "macro_f1": 72.52,
+    "weighted_f1": 74.57,
+    "latency_ms": 42.0,
+    "class_wise": {
+      "Non-Sarcastic": {
+        "precision": 0.8683,
+        "recall": 0.7178,
+        "f1_score": 0.7859,
+        "support": 808
+      },
+      "Sarcastic": {
+        "precision": 0.5786,
+        "recall": 0.7805,
+        "f1_score": 0.6645,
+        "support": 401
+      }
+    }
+  },
+  {
+    "task": "Hate Speech",
+    "model": "TF-IDF + Logistic Regression",
+    "accuracy": 86.61,
+    "macro_precision": 86.96,
+    "macro_recall": 86.42,
+    "macro_f1": 86.52,
+    "weighted_f1": 86.57,
+    "latency_ms": 2.1,
+    "class_wise": {
+      "Non-Hate": {
+        "precision": 0.8425,
+        "recall": 0.9131,
+        "f1_score": 0.8764,
+        "support": 2612
+      },
+      "Hate Speech": {
+        "precision": 0.8967,
+        "recall": 0.8154,
+        "f1_score": 0.8541,
+        "support": 2416
+      }
+    }
+  },
+  {
+    "task": "Hate Speech",
+    "model": "Word2Vec + Stacked BiLSTM",
+    "accuracy": 88.52,
+    "macro_precision": 88.54,
+    "macro_recall": 88.47,
+    "macro_f1": 88.5,
+    "weighted_f1": 88.52,
+    "latency_ms": 4.8,
+    "class_wise": {
+      "Non-Hate": {
+        "precision": 0.8827,
+        "recall": 0.8985,
+        "f1_score": 0.8905,
+        "support": 2612
+      },
+      "Hate Speech": {
+        "precision": 0.8881,
+        "recall": 0.8709,
+        "f1_score": 0.8794,
+        "support": 2416
+      }
+    }
+  },
+  {
+    "task": "Hate Speech",
+    "model": "Fine-Tuned BanglaBERT",
+    "accuracy": 76.71,
+    "macro_precision": 76.68,
+    "macro_recall": 76.69,
+    "macro_f1": 76.68,
+    "weighted_f1": 76.71,
+    "latency_ms": 42.0,
+    "class_wise": {
+      "Non-Hate": {
+        "precision": 0.7772,
+        "recall": 0.7734,
+        "f1_score": 0.7753,
+        "support": 2612
+      },
+      "Hate Speech": {
+        "precision": 0.7563,
+        "recall": 0.7603,
+        "f1_score": 0.7583,
+        "support": 2416
+      }
+    }
+  }
+]

@@ -27,6 +27,8 @@ Desktop.ini
 $RECYCLE.BIN/
 
 # Large Model Checkpoints & Temporary Artifacts (Prevent GitHub 100MB block)
+*.safetensors
+Project files/saved_models/banglabert*/model.safetensors
 Project files/saved_models/banglabert/
 *.tar.gz
 *.zip

@@ -154,7 +154,7 @@ Because our project follows 6 alternating sequential phases, merge conflicts are
 
 ---
 
-### PHASE 1: Corpus Ingestion, Regex Cleaning & Dataset Standardization
+### PHASE 1: Corpus Ingestion, Regex Cleaning & Dataset Standardization [STATUS: COMPLETED & VERIFIED]
 - **Lead Member:** Md. Tariful Islam Jony (ID: 2107119)
 - **Academic Mapping:** Lab 1 (Regular Expressions & Text Preprocessing)
 - **Goal:** Ingest all three raw datasets, prune useless columns, clean text via regular expressions, create a stratified 80/10/10 split for Sarcasm, and export uniform `(text, label)` CSVs.
@@ -200,7 +200,7 @@ Because our project follows 6 alternating sequential phases, merge conflicts are
 
 ---
 
-### PHASE 2: Tokenization, Stop-Words Normalization & Exploratory Data Analysis (EDA)
+### PHASE 2: Tokenization, Stop-Words Normalization & Exploratory Data Analysis (EDA) [STATUS: COMPLETED & VERIFIED]
 - **Lead Member:** Siyam Khan (ID: 2107120)
 - **Academic Mapping:** Lab 1 (Tokenization) & Lab 2 (Language Modeling / N-Grams)
 - **Goal:** Tokenize clean Bangla text, curate a stop-word list that preserves sentiment negations, perform comprehensive EDA, and generate statistical distributions.
@@ -308,31 +308,50 @@ Because our project follows 6 alternating sequential phases, merge conflicts are
 
 ---
 
-### PHASE 5: Pretrained BanglaBERT Fine-Tuning & Multi-Model Comparative Evaluation
+### PHASE 5: Pretrained BanglaBERT Fine-Tuning & Multi-Model Comparative Evaluation [STATUS: COMPLETED & VERIFIED]
 - **Lead Member:** Md. Tariful Islam Jony (ID: 2107119)
 - **Academic Mapping:** Lab 5 (Transformer Architecture & Pre-trained Encoders)
-- **Goal:** Set up Hugging Face `sagorsarker/bangla-bert-base`, fine-tune sequence classification heads, evaluate across all tasks, and compile the Master Benchmark Table.
+- **Goal:** Set up Hugging Face `sagorsarker/bangla-bert-base`, fine-tune sequence classification heads, evaluate across all tasks, compile the Master Benchmark Table, and verify standalone inference.
 
 #### Step 5.1: Model & Tokenizer Ingestion
-- Load `AutoTokenizer` and `AutoModelForSequenceClassification` from `sagorsarker/bangla-bert-base`.
-- Tokenization: WordPiece subwords with truncation at `max_length=64`.
+- Ingested `AutoTokenizer` and `AutoModelForSequenceClassification` from `sagorsarker/bangla-bert-base` (110M parameters).
+- Tokenization: WordPiece subwords with truncation and padding at `max_length=64`.
 
-#### Step 5.2: Task Fine-Tuning
-- Fine-tune on `train.csv` and validate on `val.csv` for 2–3 epochs using Hugging Face `Trainer` or PyTorch training loop.
-- Save fine-tuned heads to `Project files/saved_models/banglabert_sentiment/`, `banglabert_sarcasm/`, `banglabert_hate/`.
+#### Step 5.2: Task Fine-Tuning & Checkpoint Serialization
+- Fine-tuned transformer top encoder layer and classification head with `AdamW(lr=2e-5)`, linear warmup scheduler, and balanced cross-entropy loss.
+- Serialized complete model directories in `Project files/saved_models/`:
+  - `banglabert_sentiment/` (`model.safetensors`, `config.json`, tokenizer)
+  - `banglabert_sarcasm/` (`model.safetensors`, `config.json`, tokenizer)
+  - `banglabert_hate/` (`model.safetensors`, `config.json`, tokenizer)
 
-#### Step 5.3: Master Comparative Evaluation Matrix
-- Benchmark all 3 model paradigms across all 3 tasks on identical `test.csv` splits:
-  - **Model 1:** TF-IDF + Logistic Regression
-  - **Model 2:** Word2Vec + PyTorch BiLSTM
-  - **Model 3:** Fine-Tuned BanglaBERT
-- Generate the comparative markdown table:
-  | Task | Model Paradigm | Test Accuracy | Precision | Recall | Macro F1 | Inference Time (ms) |
-  | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-- Export results to `Project files/master_benchmark.json` and generate confusion matrix plots.
+#### Step 5.3: Task Test Set Evaluation
+- Evaluated on test sets:
+  - **Sarcasm:** Accuracy: 73.86% | Macro F1: **72.52%** | Weighted F1: 74.57% (Sarcastic Recall: **78.05%** — highest across all models).
+  - **Hate Speech:** Accuracy: 76.71% | Macro F1: 76.68% | Weighted F1: 76.71% (Hate Recall: 76.03%, Non-Hate Recall: 77.34%).
+  - **Sentiment:** Accuracy: 62.46% | Macro F1: 40.75% | Weighted F1: 70.95% (Positive Precision: 96.02%, Negative Recall: 62.36%).
+- Exported artifacts:
+  - Metrics JSON: `Project files/results_banglabert.json`
+  - High-res plot: `Project files/eda_plots/confusion_matrices_banglabert.png`
 
-#### Step 5.4: Acceptance Criteria
-- Complete comparative evaluation ready for direct inclusion in the project report and slides.
+#### Step 5.4: Master Comparative Benchmark Matrix
+- Benchmark compiled across all 3 model paradigms on identical test splits (`Project files/master_benchmark.md` and `Project files/master_benchmark.json`):
+
+| Task | Model Paradigm | Test Accuracy | Macro Precision | Macro Recall | Macro F1 | Weighted F1 | Latency |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Sentiment** | TF-IDF + Logistic Regression | **77.60%** | 50.78% | **67.13%** | **53.71%** | **82.24%** | ~2.1 ms |
+| **Sentiment** | Word2Vec + Stacked BiLSTM | 76.60% | **52.75%** | 63.23% | 53.27% | 81.96% | ~4.8 ms |
+| **Sentiment** | Fine-Tuned BanglaBERT | 62.46% | 41.95% | 56.57% | 40.75% | 70.95% | ~42.0 ms |
+| **Sarcasm** | TF-IDF + Logistic Regression | **74.94%** | **72.37%** | 74.09% | **72.89%** | **75.40%** | ~2.1 ms |
+| **Sarcasm** | Word2Vec + Stacked BiLSTM | 74.36% | 71.53% | 72.84% | 72.00% | 74.74% | ~4.8 ms |
+| **Sarcasm** | Fine-Tuned BanglaBERT | 73.86% | 72.34% | **74.92%** | 72.52% | 74.57% | ~42.0 ms |
+| **Hate Speech** | TF-IDF + Logistic Regression | 86.61% | 86.96% | 86.42% | 86.52% | 86.57% | ~2.1 ms |
+| **Hate Speech** | Word2Vec + Stacked BiLSTM | **88.52%** | **88.54%** | **88.47%** | **88.50%** | **88.52%** | ~4.8 ms |
+| **Hate Speech** | Fine-Tuned BanglaBERT | 76.71% | 76.68% | 76.69% | 76.68% | 76.71% | ~42.0 ms |
+
+- Comparative bar chart generated: `Project files/eda_plots/master_model_comparison.png`.
+
+#### Step 5.5: Standalone Inference Verification
+- Verified via `Project files/src/predict_bert.py` — correctly reverses surface-level positive tone into negative sentiment on benchmark sarcastic contrast sentence (`"বাহ! কী অসাধারণ service, তিন ঘণ্টা অপেক্ষা করেও কাজ হলো না!"` -> Negative).
 
 ---
 
@@ -383,14 +402,14 @@ Because our project follows 6 alternating sequential phases, merge conflicts are
 
 ## 5. Execution Summary Table
 
-| Phase | Lead Member | Task Scope | Primary Output Artifact |
-| :---: | :---: | :--- | :--- |
-| **Phase 1** | **Jony** | Corpus Cleaning & Train/Val/Test Standardization | `Project files/cleaned_data/*` |
-| **Phase 2** | **Siyam** | Tokenization, Stop-Words & EDA Statistics | `Project files/eda_summary.json` |
-| **Phase 3** | **Jony** | TF-IDF + Logistic Regression Models | `Project files/saved_models/*_lr_model.joblib` |
-| **Phase 4** | **Siyam** | Word2Vec Embeddings & PyTorch BiLSTM | `Project files/saved_models/bilstm_*.pt` |
-| **Phase 5** | **Jony** | BanglaBERT Fine-Tuning & Master Benchmark | `Project files/master_benchmark.json` |
-| **Phase 6** | **Siyam** | Streamlit Web Application & Live Pipeline | `Project files/app.py` & Master Notebook |
+| Phase | Lead Member | Task Scope | Status | Primary Output Artifact |
+| :---: | :---: | :--- | :---: | :--- |
+| **Phase 1** | **Jony** | Corpus Cleaning & Train/Val/Test Standardization | **Completed & Verified** | `Project files/cleaned_data/*` |
+| **Phase 2** | **Siyam** | Tokenization, Stop-Words & EDA Statistics | **Completed & Verified** | `Project files/eda_summary.json` |
+| **Phase 3** | **Jony** | TF-IDF + Logistic Regression Models | **Completed & Verified** | `Project files/saved_models/*_lr_model.joblib` |
+| **Phase 4** | **Siyam** | Word2Vec Embeddings & PyTorch BiLSTM | **Completed & Verified** | `Project files/saved_models/bilstm_*.pt` |
+| **Phase 5** | **Jony** | BanglaBERT Fine-Tuning & Master Benchmark | **Completed & Verified** | `Project files/master_benchmark.json` |
+| **Phase 6** | **Siyam** | Streamlit Web Application & Live Pipeline | **Next Up** | `Project files/app.py` & Master Notebook |
 
 ---
 *End of Master Plan.*

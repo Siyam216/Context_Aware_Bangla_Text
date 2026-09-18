@@ -54,7 +54,11 @@ class BanglaTextAnalyzerBERT:
         self._load_artifacts()
 
     def _load_artifacts(self):
-        self.tokenizer = AutoTokenizer.from_pretrained("sagorsarker/bangla-bert-base")
+        tok_dir = os.path.join(self.models_dir, "banglabert_sentiment")
+        if os.path.exists(os.path.join(tok_dir, "tokenizer.json")):
+            self.tokenizer = AutoTokenizer.from_pretrained(tok_dir, local_files_only=True)
+        else:
+            self.tokenizer = AutoTokenizer.from_pretrained("sagorsarker/bangla-bert-base")
         self.models = {}
 
         dir_map = {
@@ -65,7 +69,7 @@ class BanglaTextAnalyzerBERT:
         for task_name, dir_name in dir_map.items():
             model_path = os.path.join(self.models_dir, dir_name)
             if os.path.exists(model_path):
-                model = AutoModelForSequenceClassification.from_pretrained(model_path).to(self.device)
+                model = AutoModelForSequenceClassification.from_pretrained(model_path, local_files_only=True).to(self.device)
                 model.eval()
                 self.models[task_name] = model
             else:
@@ -125,7 +129,6 @@ def print_analysis(res: dict):
         if t in res:
             task_res = res[t]
             print(f"  [{t.title():<12}] : {task_res['label']:<15} (Conf: {task_res['confidence']}%) | Probs: {task_res['probabilities']}")
-    print(f"  [Latency]      : {res['latency_ms']} ms (all 3 models combined)")
     print("=" * 65)
 
 

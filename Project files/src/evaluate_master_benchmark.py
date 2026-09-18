@@ -90,11 +90,11 @@ def compile_master_benchmark():
     # 2. Export Markdown Table
     md_content = "# Master Comparative Evaluation Matrix (CSE 4121 NLP Project)\n\n"
     md_content += "Comprehensive benchmark across all three modeling paradigms on identical official test splits:\n\n"
-    md_content += "| Task | Model Paradigm | Test Accuracy (%) | Macro Precision (%) | Macro Recall (%) | Macro F1-Score (%) | Weighted F1 (%) | Inference Time (ms) |\n"
-    md_content += "| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |\n"
+    md_content += "| Task | Model Paradigm | Test Accuracy (%) | Macro Precision (%) | Macro Recall (%) | Macro F1-Score (%) | Weighted F1 (%) |\n"
+    md_content += "| :--- | :--- | :---: | :---: | :---: | :---: | :---: |\n"
 
     for r in master_records:
-        md_content += f"| **{r['task']}** | {r['model']} | {r['accuracy']:.2f}% | {r['macro_precision']:.2f}% | {r['macro_recall']:.2f}% | **{r['macro_f1']:.2f}%** | {r['weighted_f1']:.2f}% | ~{r['latency_ms']} ms |\n"
+        md_content += f"| **{r['task']}** | {r['model']} | {r['accuracy']:.2f}% | {r['macro_precision']:.2f}% | {r['macro_recall']:.2f}% | **{r['macro_f1']:.2f}%** | {r['weighted_f1']:.2f}% |\n"
 
     with open(OUTPUT_MD, "w", encoding="utf-8") as f:
         f.write(md_content)

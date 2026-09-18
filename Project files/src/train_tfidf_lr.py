@@ -302,8 +302,7 @@ def verify_fast_inference(models: dict):
         elapsed_ms = (time.perf_counter() - t0) * 1000
         print(f"  ├─ Sentiment:   {predictions['sentiment']}")
         print(f"  ├─ Sarcasm:     {predictions['sarcasm']}")
-        print(f"  ├─ Hate Speech: {predictions['hate_speech']}")
-        print(f"  └─ Total Latency (all 3 models): {elapsed_ms:.2f} ms")
+        print(f"  └─ Hate Speech: {predictions['hate_speech']}")
 
 
 def main():

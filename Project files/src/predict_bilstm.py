@@ -178,7 +178,6 @@ def print_analysis(res: dict):
     print(f"  [Sentiment]   : {sent['label']:<15} (Conf: {sent['confidence']}%) | Probs: {sent['probabilities']}")
     print(f"  [Sarcasm]     : {sarc['label']:<15} (Conf: {sarc['confidence']}%) | Probs: {sarc['probabilities']}")
     print(f"  [Hate Speech] : {hate['label']:<15} (Conf: {hate['confidence']}%) | Probs: {hate['probabilities']}")
-    print(f"  [Latency]     : {res['latency_ms']} ms (all 3 BiLSTMs combined)")
     print("=" * 65)
 
 

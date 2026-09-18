@@ -136,7 +136,6 @@ def print_analysis(result: dict):
     print(f"  [Sentiment]   : {sent['label']:<15} (Confidence: {sent['confidence']}%) | Probs: {sent['probabilities']}")
     print(f"  [Sarcasm]     : {sarc['label']:<15} (Confidence: {sarc['confidence']}%) | Probs: {sarc['probabilities']}")
     print(f"  [Hate Speech] : {hate['label']:<15} (Confidence: {hate['confidence']}%) | Probs: {hate['probabilities']}")
-    print(f"  [Latency]     : {result['latency_ms']} ms (all 3 models combined)")
     print("=" * 65)
 
 

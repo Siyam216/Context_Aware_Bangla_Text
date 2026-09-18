@@ -51,8 +51,6 @@ def print_comparison(raw_text: str, lr_res: dict, bilstm_res: dict, bert_res: di
         bert_val = f"{bert_res[task_key]['label']} ({bert_res[task_key]['confidence']}%)"
         print(f"{task_name:<14} | {lr_val:<22} | {bilstm_val:<22} | {bert_val:<22}")
         
-    print("-" * 80)
-    print(f"{'Latency':<14} | {lr_res['latency_ms']:>6.2f} ms{' ':14} | {bilstm_res['latency_ms']:>6.2f} ms{' ':14} | {bert_res['latency_ms']:>6.2f} ms")
     print("=" * 80 + "\n")
 
 

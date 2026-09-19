@@ -1,12 +1,3 @@
-"""
-Context-Aware Bangla Text Analyzer - Streamlit Interactive Web Application
-CSE 4121 (Natural Language Processing Sessional)
-
-Authors:
-- Siyam Khan (Roll: 2107120) [Phase 6 Lead]
-- Md. Tariful Islam Jony (Roll: 2107119)
-"""
-
 import os
 import sys
 import time
@@ -17,7 +8,7 @@ from PIL import Image
 
 # Page Configuration
 st.set_page_config(
-    page_title="Bangla Text Analyzer | CSE 4121",
+    page_title="Bangla Text Analyzer | CSE 4122",
     page_icon="🇧🇩",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -179,17 +170,17 @@ st.markdown("""
     <div class="main-title">🇧🇩 Context-Aware Bangla Text Analyzer</div>
     <div class="sub-title">
         Multi-Task Detection of <b>Sentiment</b>, <b>Sarcasm</b>, and <b>Hate Speech</b> across 3 Distinct Modeling Paradigms<br>
-        <b>CSE 4121: NLP Sessional</b> | Dept. of CSE, KUET
+        <b>CSE 4122: NLP Sessional</b> | Dept. of CSE, KUET
     </div>
 </div>
 """, unsafe_allow_html=True)
 
 # Sidebar metadata
 with st.sidebar:
-    st.image("https://upload.wikimedia.org/wikipedia/en/thumb/e/e0/Khulna_University_of_Engineering_%26_Technology_logo.svg/1200px-Khulna_University_of_Engineering_%26_Technology_logo.svg.png", width=85)
+    st.image("https://upload.wikimedia.org/wikipedia/en/7/74/Logo_KUET.svg?utm_source=en.wikipedia.org&utm_campaign=index&utm_content=original", width=85)
     st.title("Project Overview")
     st.markdown("""
-    **Course:** CSE 4121 (NLP Lab)  
+    **Course:** CSE 4122 (NLP Lab)  
     **Institution:** KUET CSE  
     
     **Team Members:**
@@ -539,7 +530,7 @@ with tab_about:
     st.subheader("🎓 Project Background & Team Credits")
     st.markdown("""
     ### 🏛️ Academic Institutional Context
-    - **Course:** CSE 4121 (Natural Language Processing Sessional)
+    - **Course:** CSE 4122 (Natural Language Processing Sessional)
     - **Academic Year:** 4th Year, 1st Term (CSE 4-1)
     - **Institution:** Department of Computer Science & Engineering, KUET
     
@@ -551,7 +542,7 @@ with tab_about:
     | **Siyam Khan** | **2107120** | Phase 2 (Tokenization & EDA), Phase 4 (Word2Vec + BiLSTM), Phase 6 (Streamlit Dashboard & Master Notebook) |
     
     ---
-    ### 🔗 Integration with CSE 4121 Lab Syllabus
+    ### 🔗 Integration with CSE 4122 Lab Syllabus
     - **Lab 1 (Text Normalization):** Bengali Unicode regex cleaning, negation preservation, zero-width stripping.
     - **Lab 2 (N-Gram & TF-IDF):** Unigram + Bigram sublinear TF-IDF vectorization (20,000 features).
     - **Lab 3 (Embeddings & Logistic Regression):** Balanced discriminative classification and dense 128-d PPMI-SVD Word2Vec.
@@ -561,4 +552,4 @@ with tab_about:
 
 # Footer
 st.markdown("---")
-st.markdown("<p style='text-align: center; color: #64748b; font-size: 0.85rem;'>Developed with ❤️ for CSE 4121 NLP Sessional | Dept. of CSE, KUET</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #64748b; font-size: 0.85rem;'>Developed with ❤️ for CSE 4122 NLP Sessional | Dept. of CSE, KUET</p>", unsafe_allow_html=True)

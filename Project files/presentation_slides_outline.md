@@ -1,7 +1,7 @@
 # 🇧🇩 Presentation Slide Deck Outline
 ## Context-Aware Bangla Text Analyzer for Sentiment, Sarcasm, and Hate Speech Detection
 
-- **Course:** CSE 4121: Natural Language Processing Sessional
+- **Course:** CSE 4122: Natural Language Processing Sessional
 - **Academic Term:** 4th Year, 1st Term (CSE 4-1)
 - **Department:** Department of Computer Science & Engineering, KUET
 - **Project Team:**
@@ -16,7 +16,7 @@
 - **Key Talking Points:**
   - Good morning / afternoon respected audience and peers.
   - Today, we present our end-to-end NLP sessional project addressing the fundamental challenges of understanding informal, colloquial, and sarcastic Bengali social media text.
-  - We systematically compare three distinct paradigms from the CSE 4121 syllabus: Statistical (TF-IDF + LR), Sequential Recurrent (Word2Vec + Stacked BiLSTM), and Modern Transformer (BanglaBERT), integrated into a live context-aware inference dashboard.
+  - We systematically compare three distinct paradigms from the CSE 4122 syllabus: Statistical (TF-IDF + LR), Sequential Recurrent (Word2Vec + Stacked BiLSTM), and Modern Transformer (BanglaBERT), integrated into a live context-aware inference dashboard.
 
 ---
 
@@ -54,7 +54,7 @@
 
 ---
 
-## Slide 4: Academic Integration with CSE 4121 Syllabus
+## Slide 4: Academic Integration with CSE 4122 Syllabus
 - **Slide Title:** Seamless Mapping to NLP Lab Curriculum
 - **Table / Visual Mapping:**
   | Lab Session | Core Topic Taught in Lab | Direct Implementation in Project |
@@ -231,7 +231,7 @@ Is Sarcasm Present?           Clean vs Hate Speech Label
 ## Slide 16: Acknowledgements & Q&A
 - **Slide Title:** Questions & Discussion
 - **Content:**
-  - We express our sincere gratitude to the Department of Computer Science & Engineering, KUET, for continuous support throughout CSE 4121.
+  - We express our sincere gratitude to the Department of Computer Science & Engineering, KUET, for continuous support throughout CSE 4122.
   - **Open for Questions & Discussion from the Audience.**
 
 ---

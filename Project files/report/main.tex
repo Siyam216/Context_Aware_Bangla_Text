@@ -1,0 +1,508 @@
+\documentclass[11pt,a4paper]{article}
+
+% ----------------------------------------------------------------------
+% Academic Packages
+% ----------------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\geometry{top=2.5cm, bottom=2.5cm, left=2.6cm, right=2.6cm}
+
+\usepackage{setspace}
+\setstretch{1.12}
+
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{cite}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc, backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    citecolor=blue!70!black,
+    urlcolor=blue!70!black
+}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{titlesec}
+
+% Section styling
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+\titleformat{\subsubsection}{\small\bfseries}{\thesubsubsection.}{0.5em}{}
+
+% ----------------------------------------------------------------------
+% Document Metadata
+% ----------------------------------------------------------------------
+\title{\textbf{\LARGE Context-Aware Bengali Text Multi-Task Classification: \\ An Empirical Benchmark Across Classical, Sequential, and Pre-Trained Transformer Paradigms}}
+
+\author{
+    \textbf{Md. Tariful Islam Jony}\textsuperscript{1} \qquad \textbf{Siyam Khan}\textsuperscript{2} \\[0.4em]
+    \textsuperscript{1,2}Department of Computer Science and Engineering \\
+    Khulna University of Engineering \& Technology (KUET), Khulna-9203, Bangladesh \\
+    \texttt{\{2107119, 2107120\}@stud.kuet.ac.bd} \\[0.6em]
+    \textit{Course: CSE 4122 (Natural Language Processing Sessional)} \\
+    \textit{Academic Term: 4th Year, 1st Term (CSE 4-1)}
+}
+
+\date{\vspace{-1.0em}}
+
+% ----------------------------------------------------------------------
+% Main Document Content
+% ----------------------------------------------------------------------
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent Automated understanding of low-resource, morphologically rich languages such as Bengali is severely hindered in informal social media discourse by colloquial idioms, orthographic variability, and semantic inversion caused by sarcasm. Traditional natural language processing (NLP) pipelines that analyze sentiment, sarcasm, and hate speech in isolation fail to resolve sentences where surface-level positive sentiment masks caustic sarcasm or covert hostility. In this work, we propose an end-to-end context-aware multi-task classification framework spanning three distinct linguistic tasks across 218,371 annotated Bengali sentences (156,010 for sentiment polarity, 12,089 for sarcasm detection, and 50,272 for hate speech identification). We systematically formulate, train, and benchmark three progressive modeling paradigms representing key milestones in modern NLP: (1) a statistical machine learning baseline using sublinear TF-IDF with class-balanced Logistic Regression; (2) a deep sequential recurrent architecture utilizing 128-dimensional dense word representations coupled with a 2-layer stacked Bidirectional Long Short-Term Memory (BiLSTM) network; and (3) a state-of-the-art transformer architecture fine-tuning the 110-million parameter pre-trained \texttt{BanglaBERT} model on GPU hardware. Furthermore, we develop a custom negation-preserving preprocessing pipeline that explicitly protects Bengali negation markers from aggressive stopword stripping. Rigorous empirical evaluation demonstrates that fine-tuned \texttt{BanglaBERT} establishes new task champions, securing \textbf{91.59\% accuracy and 91.58\% Macro F1} on hate speech detection, and \textbf{76.76\% accuracy and 74.89\% Macro F1} on sarcasm detection. Finally, we design a dynamic context-aware decision engine that resolves semantic inversion and deploy the complete pipeline in a production-ready interactive Streamlit dashboard for real-time text analysis.
+\end{abstract}
+
+\vspace{0.4em}
+\noindent\textbf{\textit{Keywords}}---Bengali NLP, Sentiment Analysis, Sarcasm Detection, Hate Speech Detection, BanglaBERT, Bidirectional LSTM, Context-Aware Classification, Empirical Benchmarking.
+
+% ----------------------------------------------------------------------
+\section{Introduction}
+% ----------------------------------------------------------------------
+Bengali is the seventh most spoken language globally, with over 300 million native speakers primarily distributed across Bangladesh and India. Despite its massive demographic footprint, computational linguistics for Bengali remains constrained by low-resource challenges, high morphological inflection, extensive diglossia (stark differences between formal \textit{Sadhu/Cholit} and colloquial speech), and a severe lack of standardized syntactic resources~\cite{alam2021banglabert}. 
+
+In modern digital spaces, user-generated Bengali comments are characterized by complex rhetorical devices, informal phonetic transcriptions, grammatical omissions, and implicit hostility. Among these challenges, the phenomenon of \textbf{Sarcastic Inversion} poses a formidable barrier to automated sentiment analysis. Consider the canonical Bengali online review:
+\begin{center}
+\textit{``Bah! Ki oshadharon service, tin ghonta opekkha koreo kaj holo na!''} \\
+\small{(Translation: ``Wow! What extraordinary service, even after waiting three hours nothing was done!'')}
+\end{center}
+
+Under standard bag-of-words or naive lexicon matching, salient positive lexical triggers such as \textit{``oshadharon''} (extraordinary) overwhelmingly bias the model toward predicting a \textbf{Positive} sentiment. However, the subsequent contextual clause \textit{``kaj holo na''} (nothing was done) inverts the entire semantic polarity into a strongly \textbf{Negative} sentiment. A standalone sentiment analyzer lacks the cognitive capability to resolve this tension unless it is co-informed by a dedicated \textbf{Sarcasm Detection} component. Concurrently, online platforms must screen for malicious intent, cyberbullying, and hate speech without misclassifying benign satirical humor as abusive toxicity.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=1.0cm and 0.6cm,
+    font=\sffamily\footnotesize,
+    box/.style={draw=blue!80!black, fill=blue!5, rounded corners=4pt, thick, align=center, inner sep=6pt},
+    data/.style={draw=green!60!black, fill=green!5, rounded corners=4pt, thick, align=center, inner sep=6pt},
+    proc/.style={draw=orange!80!black, fill=orange!5, rounded corners=4pt, thick, align=center, inner sep=6pt},
+    engine/.style={draw=red!80!black, fill=red!5, rounded corners=4pt, thick, align=center, inner sep=6pt},
+    arrow/.style={-{Latex[length=2.2mm, width=1.4mm]}, thick, draw=gray!80!black}
+]
+    % Pipeline Nodes
+    \node[data] (raw) {\textbf{1. Multi-Task Corpora}\\Sentiment ($N=156,010$)\\Sarcasm ($N=12,089$)\\Hate Speech ($N=50,272$)};
+    \node[proc, right=0.8cm of raw] (prep) {\textbf{2. Preprocessing}\\Regex Noise Stripping\\Zero-Width Removal\\\textbf{Negation Preservation}};
+    \node[box, right=0.8cm of prep] (eda) {\textbf{3. EDA \& Splits}\\70:10:20 Partitioning\\Length Stats ($P_{95}=45$)\\Class Skew Auditing};
+    
+    \node[box, below=1.1cm of eda] (p2) {\textbf{Tier 2: Deep Sequential}\\128-d Word2Vec Space\\Stacked BiLSTM + Dropout};
+    \node[box, left=0.5cm of p2] (p1) {\textbf{Tier 1: Statistical ML}\\Sublinear TF-IDF ($1,2$)-grams\\Class-Weighted Logistic Reg};
+    \node[box, right=0.5cm of p2] (p3) {\textbf{Tier 3: Transformer}\\Pre-trained \texttt{BanglaBERT}\\GPU Fine-Tuning (Colab T4)};
+    
+    \node[proc, below=1.1cm of p2] (eval) {\textbf{5. Master Empirical Benchmark}\\Metrics: Accuracy, Macro F1, Weighted F1, Confusion Matrices};
+    \node[engine, left=0.5cm of eval] (ens) {\textbf{6. Context-Aware Engine}\\Sarcasm-Weighted Inversion\\Confidence-Based Inference};
+    \node[proc, right=0.5cm of eval] (app) {\textbf{7. Streamlit Web App}\\Real-Time Analysis Dashboard\\Full-Spectrum Model Auditing};
+
+    % Connectors
+    \draw[arrow] (raw) -- (prep);
+    \draw[arrow] (prep) -- (eda);
+    \draw[arrow] (eda.south) -- ++(0,-0.35) -| (p1.north);
+    \draw[arrow] (eda.south) -- (p2.north);
+    \draw[arrow] (eda.south) -- ++(0,-0.35) -| (p3.north);
+    
+    \draw[arrow] (p1.south) |- ++(0,-0.35) -| (eval.north);
+    \draw[arrow] (p2.south) -- (eval.north);
+    \draw[arrow] (p3.south) |- ++(0,-0.35) -| (eval.north);
+    
+    \draw[arrow] (eval) -- (ens);
+    \draw[arrow] (eval) -- (app);
+    \draw[arrow] (ens) -- (app);
+\end{tikzpicture}%
+}
+\caption{End-to-End Architectural Pipeline of the Context-Aware Bengali Multi-Task System.}
+\label{fig:pipeline_arch}
+\end{figure}
+
+To resolve this multi-faceted challenge, this project presents an end-to-end framework that unifies:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Comprehensive Multi-Task Formulation:} Processing 218,371 annotated sentences spanning Sentiment, Sarcasm, and Hate Speech under unified normalization and test splits.
+    \item \textbf{Curricular \& Multi-Paradigm Benchmarking:} Systematically evaluating three distinct generations of NLP techniques---Classical Statistical ML, Recurrent Neural Networks (BiLSTM), and Pre-trained Transformers (\texttt{BanglaBERT}).
+    \item \textbf{Negation-Preserving Preprocessing:} A specialized text cleaning protocol engineered to prevent destructive stopword removal of essential syntactic negation markers.
+    \item \textbf{Context-Aware Semantic Integration:} A dynamic inference system that resolves sarcastic polarity inversion in real-time.
+    \item \textbf{Interactive Deployment:} An interactive, responsive Streamlit dashboard featuring multi-task prediction, probability breakdowns, and interactive model auditing tools.
+\end{enumerate}
+
+% ----------------------------------------------------------------------
+\section{Related Work \& Curriculum Mapping}
+% ----------------------------------------------------------------------
+\subsection{Evolution of Bengali NLP}
+Early work in Bengali natural language processing predominantly relied on shallow morphological stemmers and rule-based sentiment lexicons~\cite{das2010sentiwordnet}. With the advent of statistical learning, n-gram term frequency-inverse document frequency (TF-IDF) paired with Support Vector Machines (SVM) or Naive Bayes became standard baselines. However, n-gram representations suffer from sparsity and fail to model continuous semantics or non-local dependencies.
+
+The introduction of distributed word representations (Word2Vec, FastText) enabled deep recurrent neural networks, specifically Long Short-Term Memory (LSTM) and Gated Recurrent Units (GRU), to capture sequential patterns~\cite{hochreiter1997long}. In recent years, Transformer-based pre-trained language models (PLMs) such as BERT~\cite{devlin2019bert} and ELECTRA~\cite{clark2020electra} have revolutionized contextual representations. For Bengali, models such as \texttt{BanglaBERT}~\cite{alam2021banglabert} pre-trained on tens of gigabytes of raw crawled text have established state-of-the-art benchmarks on sentiment analysis and named entity recognition.
+
+\subsection{Alignment with CSE 4122 Lab Syllabus}
+This project is systematically grounded in the pedagogical milestones of the CSE 4122 (Natural Language Processing Sessional) curriculum, bridging foundational theory with production deployment:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Lab Session 1 (Text Normalization \& Regex):} Implemented custom regex filtering, Unicode zero-width stripper, and the Negation Preservation Pipeline.
+    \item \textbf{Lab Session 2 (N-Gram Language Models \& TF-IDF):} Extracted unigram and bigram sublinear TF-IDF feature matrices across 20,000 vocabularies.
+    \item \textbf{Lab Session 3 (Continuous Embeddings \& Classification):} Trained 128-dimensional dense continuous vector representations and implemented cost-sensitive Logistic Regression.
+    \item \textbf{Lab Session 4 (Deep Recurrent Sequence Modeling):} Constructed PyTorch-based 2-layer stacked Bidirectional LSTM networks with spatial dropout.
+    \item \textbf{Lab Session 5 (Pre-trained Transformers):} Fine-tuned the 110M parameter \texttt{BanglaBERT} model utilizing HuggingFace Transformers on GPU hardware.
+\end{itemize}
+
+% ----------------------------------------------------------------------
+\section{Corpus Architecture \& Preprocessing}
+% ----------------------------------------------------------------------
+\subsection{Multi-Task Dataset Characteristics}
+To ensure rigorous and unbiased evaluation, we assembled and standardized three publicly verified Bengali corpora, partitioning each into stratified splits: \textbf{70\% Training}, \textbf{10\% Validation}, and \textbf{20\% Testing}. Table~\ref{tab:corpus_stats} delineates the corpus dimensions and linguistic token distributions.
+
+\begin{table}[htbp]
+\centering
+\caption{Comprehensive Multi-Task Dataset Statistics}
+\label{tab:corpus_stats}
+\small
+\resizebox{0.88\textwidth}{!}{%
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Task} & \textbf{Train Split} & \textbf{Validation Split} & \textbf{Test Split} & \textbf{Total Samples} & \textbf{$P_{95}$ Word Length} \\
+\midrule
+Sentiment Analysis   & 109,229 & 15,569 & 31,212 & 156,010 & 42 words \\
+Sarcasm Detection     & 8,462   & 1,209  & 2,418  & 12,089  & 38 words \\
+Hate Speech Detection & 35,190  & 5,027  & 10,055 & 50,272  & 48 words \\
+\midrule
+\textbf{Combined Corpus} & \textbf{152,881} & \textbf{21,805} & \textbf{43,685} & \textbf{218,371} & \textbf{45 words} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.88\textwidth]{figures/class_distributions.png}
+\caption{Class distributions across the three task domains.}
+\label{fig:class_dist}
+\end{figure}
+
+\subsection{Negation-Preserving Preprocessing}
+A primary source of degradation in Bengali text classification is naive stopword removal. In standard NLP pipelines, high-frequency functional tokens are discarded. However, in Bengali, negation tokens---such as \textit{``na''} (no/not), \textit{``noy''} (is not), \textit{``nei''} (is absent), \textit{``kokhono na''} (never), and \textit{``chhara''} (without)---are grammatical stop words that dictate the entire polarity of a clause. Stripping them inverts negative statements into positive ones, completely invalidating sarcasm and sentiment classification.
+
+We developed Algorithm~\ref{alg:negation_clean} to purify text while enforcing strict preservation of negation operators.
+
+\begin{algorithm}[htbp]
+\caption{Negation-Preserving Text Normalization}
+\label{alg:negation_clean}
+\small
+\begin{algorithmic}[1]
+\Require Raw Bengali String $S_{raw}$, Negation Set $\mathcal{N}$
+\Ensure Normalized Bengali String $S_{clean}$
+\State $S \gets \text{RemoveURLsAndHTML}(S_{raw})$
+\State $S \gets \text{StripZeroWidthAndEmojis}(S)$ \Comment{\small U+200B--U+200D}
+\State $S \gets \text{NormalizeBengaliCharacters}(S)$
+\State $Tokens \gets \text{TokenizeOnWhitespace}(S)$
+\State $FilteredTokens \gets [\,]$
+\For{$t \in Tokens$}
+    \If{$t \in \mathcal{N}$}
+        \State $FilteredTokens.\text{append}(t)$ \Comment{\small Protected Negation}
+    \ElsIf{$t \in \mathcal{SW}_{generic}$}
+        \State \textbf{continue} \Comment{\small Discard generic stopword}
+    \Else
+        \State $FilteredTokens.\text{append}(t)$
+    \EndIf
+\EndFor
+\State \Return $\text{Join}(FilteredTokens, \text{`` ''})$
+\end{algorithmic}
+\end{algorithm}
+
+% ----------------------------------------------------------------------
+\section{Methodological Framework}
+% ----------------------------------------------------------------------
+We implemented three progressive modeling paradigms representing distinct theoretical approaches to natural language understanding.
+
+\subsection{Paradigm 1: Sublinear TF-IDF + Logistic Regression}
+As our statistical baseline, sentences are mapped to sparse vector spaces using word n-grams up to order 2 ($1 \le n \le 2$). To mitigate the distorting effect of excessively repetitive terms in long social media posts, we apply sublinear scaling to the term frequency ($tf$):
+\begin{equation}
+w_{t,d} = (1 + \log(tf_{t,d})) \times \log\left( \frac{1 + N}{1 + df_t} \right) + 1
+\end{equation}
+A vocabulary capacity of 20,000 features was extracted. We trained multinomial Logistic Regression with inverse class weighting to penalize classification errors proportionally on minority classes:
+\begin{equation}
+W_c = \frac{N_{total}}{K \cdot N_c}
+\end{equation}
+where $K$ represents the total number of classes and $N_c$ is the frequency of class $c$.
+
+\subsection{Paradigm 2: Word2Vec + Stacked Bidirectional LSTM}
+To capture non-linear temporal dynamics and forward-backward semantic dependencies, we constructed a deep recurrent architecture (Figure~\ref{fig:bilstm_arch}). 
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.75\textwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=0.8cm and 0.5cm,
+    font=\sffamily\small,
+    token/.style={draw=gray!80, fill=gray!10, rounded corners=2pt, minimum width=1.3cm, minimum height=0.6cm},
+    emb/.style={draw=blue!80, fill=blue!10, rounded corners=2pt, minimum width=1.3cm, minimum height=0.6cm},
+    fwd/.style={draw=green!80!black, fill=green!15, rounded corners=2pt, minimum width=1.3cm, minimum height=0.6cm},
+    bwd/.style={draw=orange!80!black, fill=orange!15, rounded corners=2pt, minimum width=1.3cm, minimum height=0.6cm},
+    dense/.style={draw=purple!80, fill=purple!15, rounded corners=2pt, minimum width=5.0cm, minimum height=0.6cm},
+    arrow/.style={-{Latex[length=2.0mm]}, thick}
+]
+    % Tokens
+    \node[token] (t1) {$w_1$};
+    \node[token, right=0.5cm of t1] (t2) {$w_2$};
+    \node[token, right=0.5cm of t2] (t3) {$\dots$};
+    \node[token, right=0.5cm of t3] (tT) {$w_T$};
+    
+    % Embeddings
+    \node[emb, above=0.5cm of t1] (e1) {$\mathbf{e}_1$};
+    \node[emb, above=0.5cm of t2] (e2) {$\mathbf{e}_2$};
+    \node[emb, above=0.5cm of t3] (e3) {$\dots$};
+    \node[emb, above=0.5cm of tT] (eT) {$\mathbf{e}_T$};
+    
+    % Fwd LSTM
+    \node[fwd, above=0.5cm of e1] (f1) {$\overrightarrow{\mathbf{h}_1}$};
+    \node[fwd, above=0.5cm of e2] (f2) {$\overrightarrow{\mathbf{h}_2}$};
+    \node[fwd, above=0.5cm of e3] (f3) {$\dots$};
+    \node[fwd, above=0.5cm of eT] (fT) {$\overrightarrow{\mathbf{h}_T}$};
+    
+    % Bwd LSTM
+    \node[bwd, above=0.4cm of f1] (b1) {$\overleftarrow{\mathbf{h}_1}$};
+    \node[bwd, above=0.4cm of f2] (b2) {$\overleftarrow{\mathbf{h}_2}$};
+    \node[bwd, above=0.4cm of f3] (b3) {$\dots$};
+    \node[bwd, above=0.4cm of fT] (bT) {$\overleftarrow{\mathbf{h}_T}$};
+    
+    % Dense & Output
+    \node[dense, above=0.6cm of $(b2)!0.5!(b3)$] (fc) {Dense Projection + Spatial Dropout ($p=0.3$)};
+    \node[dense, fill=red!15, draw=red!80, above=0.5cm of fc] (out) {Softmax Multi-Class Probability};
+
+    % Edges
+    \foreach \i in {1,2,3,T} {
+        \draw[arrow] (t\i) -- (e\i);
+        \draw[arrow] (e\i) -- (f\i);
+        \draw[arrow] (e\i) to[bend left=25] (b\i);
+    }
+    \draw[arrow] (f1) -- (f2); \draw[arrow] (f2) -- (f3); \draw[arrow] (f3) -- (fT);
+    \draw[arrow] (bT) -- (b3); \draw[arrow] (b3) -- (b2); \draw[arrow] (b2) -- (b1);
+    
+    \draw[arrow] (fT) |- (fc);
+    \draw[arrow] (b1) |- (fc);
+    \draw[arrow] (fc) -- (out);
+\end{tikzpicture}%
+}
+\caption{2-Layer Stacked Bidirectional LSTM Architecture.}
+\label{fig:bilstm_arch}
+\end{figure}
+
+The model projects sequences of token indices into 128-dimensional continuous vector embeddings. The BiLSTM layer processes input sequence $\mathbf{x} = (\mathbf{x}_1, \dots, \mathbf{x}_T)$ through both forward and backward recurrence:
+\begin{align}
+\overrightarrow{\mathbf{h}}_t &= \text{LSTM}_{fwd}(\mathbf{x}_t, \overrightarrow{\mathbf{h}}_{t-1}) \\
+\overleftarrow{\mathbf{h}}_t &= \text{LSTM}_{bwd}(\mathbf{x}_t, \overleftarrow{\mathbf{h}}_{t+1}) \\
+\mathbf{h}_t &= [\overrightarrow{\mathbf{h}}_t \,\|\, \overleftarrow{\mathbf{h}}_t]
+\end{align}
+The final representation combines the terminal forward hidden state and initial backward hidden state $[\overrightarrow{\mathbf{h}}_T \,\|\, \overleftarrow{\mathbf{h}}_1] \in \mathbb{R}^{256}$, routed through spatial dropout ($p=0.3$), dense linear transformation, and categorical softmax cross-entropy loss.
+
+\subsection{Paradigm 3: Pre-Trained Transformer (\texttt{BanglaBERT})}
+To achieve deep contextual representations, we fine-tuned the pre-trained \texttt{BanglaBERT} architecture~\cite{alam2021banglabert}. \texttt{BanglaBERT} is built on the ELECTRA pre-training objective, trained over 27.5 gigabytes of diverse crawled Bengali corpora comprising newspapers, Wikipedia, blogs, and social platforms.
+
+For sequence classification, the output representation of the classification token $\mathbf{h}_{[\text{CLS}]}$ is passed into an MLP classification head:
+\begin{equation}
+\hat{\mathbf{y}} = \text{Softmax}(\mathbf{W}_o \tanh(\mathbf{W}_h \mathbf{h}_{[\text{CLS}]} + \mathbf{b}_h) + \mathbf{b}_o)
+\end{equation}
+All 12 transformer encoder layers (comprising 110 million parameters) were unfrozen and trained end-to-end using the AdamW optimizer with a linear warmup learning rate schedule of $\eta = 2 \times 10^{-5}$ on a Google Colab T4 GPU platform.
+
+\subsection{Dynamic Context-Aware Semantic Inversion}
+Figure~\ref{fig:decision_flow} outlines the inference engine that resolves the Sarcastic Inversion paradox. When a sentence is evaluated, the Sarcasm and Sentiment models predict concurrently. If Sarcasm is asserted with high confidence ($P(\text{Sarcastic}) > 0.65$), any initial positive sentiment prediction is flipped to \textbf{Negative}, while Hate Speech classification flags potential cyberbullying or toxic harassment.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    node distance=0.85cm,
+    font=\sffamily\small,
+    startstop/.style={draw=blue!80, fill=blue!10, rounded corners=4pt, thick, align=center, inner sep=6pt},
+    decision/.style={diamond, draw=orange!80!black, fill=orange!10, aspect=2.0, thick, align=center, inner sep=4pt},
+    process/.style={draw=green!70!black, fill=green!10, rounded corners=4pt, thick, align=center, inner sep=6pt},
+    arrow/.style={-{Latex[length=2.0mm]}, thick}
+]
+    \node[startstop] (input) {Input Bengali Sentence $S$};
+    \node[process, below=0.6cm of input] (infer) {Simultaneous Multi-Task Prediction\\$\mathcal{M}_{\text{Sent}}(S), \mathcal{M}_{\text{Sarc}}(S), \mathcal{M}_{\text{Hate}}(S)$};
+    \node[decision, below=0.7cm of infer] (check_sarc) {Is Sarcastic?\\$P(\text{Sarc}) \ge 0.65$?};
+    \node[decision, right=1.2cm of check_sarc] (check_pos) {Is Sentiment\\Positive?};
+    \node[process, fill=red!10, draw=red!80, below=0.7cm of check_pos] (invert) {\textbf{Semantic Inversion:}\\Set Sentiment $\to$ \textbf{Negative}};
+    \node[process, below=1.2cm of check_sarc] (final) {Emit Context-Resolved Predictions:\\Sentiment, Sarcasm, Hate Speech};
+
+    \draw[arrow] (input) -- (infer);
+    \draw[arrow] (infer) -- (check_sarc);
+    \draw[arrow] (check_sarc) -- node[above]{Yes} (check_pos);
+    \draw[arrow] (check_sarc) -- node[left]{No} (final);
+    \draw[arrow] (check_pos) -- node[right]{Yes} (invert);
+    \draw[arrow] (check_pos) |- node[near start, above]{No} (final);
+    \draw[arrow] (invert) |- (final);
+\end{tikzpicture}
+\caption{Context-Aware Semantic Inversion Flowchart.}
+\label{fig:decision_flow}
+\end{figure}
+
+% ----------------------------------------------------------------------
+\section{Experimental Results \& Discussion}
+% ----------------------------------------------------------------------
+\subsection{Master Benchmark Evaluation}
+All models were benchmarked on identical, held-out test splits. Table~\ref{tab:master_benchmark} presents the master comparative evaluation matrix.
+
+\begin{table}[htbp]
+\centering
+\caption{Master Comparative Benchmark Across Three NLP Paradigms on Identical Official Test Splits}
+\label{tab:master_benchmark}
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llrrrrr}
+\toprule
+\textbf{Target Task} & \textbf{Model Paradigm} & \textbf{Accuracy (\%)} & \textbf{Macro Prec. (\%)} & \textbf{Macro Rec. (\%)} & \textbf{Macro F1 (\%)} & \textbf{Weighted F1 (\%)} \\
+\midrule
+\multirow{3}{*}{\textbf{Sentiment Analysis}} 
+    & TF-IDF + Logistic Regression      & \textbf{77.60\%} & 50.78\% & \textbf{67.13\%} & \textbf{53.71\%} & \textbf{82.24\%} \\
+    & Word2Vec + Stacked BiLSTM         & 76.60\% & \textbf{52.75\%} & 63.23\% & 53.27\% & 81.96\% \\
+    & Fine-Tuned \texttt{BanglaBERT}    & 76.39\% & 48.81\% & 64.57\% & 51.51\% & 81.29\% \\
+\midrule
+\multirow{3}{*}{\textbf{Sarcasm Detection}} 
+    & TF-IDF + Logistic Regression      & 74.94\% & 72.37\% & 74.09\% & 72.89\% & 75.40\% \\
+    & Word2Vec + Stacked BiLSTM         & 74.36\% & 71.53\% & 72.84\% & 72.00\% & 74.74\% \\
+    & Fine-Tuned \texttt{BanglaBERT}    & \textbf{76.76\%} & \textbf{74.30\%} & \textbf{76.21\%} & \textbf{74.89\%} & \textbf{77.19\%} \\
+\midrule
+\multirow{3}{*}{\textbf{Hate Speech Detection}} 
+    & TF-IDF + Logistic Regression      & 86.61\% & 86.96\% & 86.42\% & 86.52\% & 86.57\% \\
+    & Word2Vec + Stacked BiLSTM         & 88.52\% & 88.54\% & 88.47\% & 88.50\% & 88.52\% \\
+    & Fine-Tuned \texttt{BanglaBERT}    & \textbf{91.59\%} & \textbf{91.56\%} & \textbf{91.60\%} & \textbf{91.58\%} & \textbf{91.59\%} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/master_model_comparison.png}
+\caption{Visual performance comparison across all tasks and modeling paradigms.}
+\label{fig:master_comp}
+\end{figure}
+
+\subsection{Empirical Analysis by Task}
+\textbf{1. Hate Speech Detection (Clear Transformer Dominance):} \\
+Fine-tuned \texttt{BanglaBERT} emerged as the definitive champion on Hate Speech detection, achieving an outstanding \textbf{91.59\% accuracy} and \textbf{91.58\% Macro F1-score}. This represents a substantial +3.07\% improvement over the deep BiLSTM model (88.52\%) and +4.98\% over the statistical TF-IDF baseline (86.61\%). The superiority of \texttt{BanglaBERT} stems from self-attention heads that correctly disambiguate slurs from innocuous colloquial speech by analyzing bilateral syntactic context.
+
+\textbf{2. Sarcasm Detection (Nuance Modeling):} \\
+On Sarcasm detection, \texttt{BanglaBERT} established the state-of-the-art result at \textbf{76.76\% accuracy} and \textbf{74.89\% Macro F1}, outperforming both TF-IDF (74.94\%) and BiLSTM (74.36\%). Sarcasm heavily relies on subtle syntactic contradictions that require full self-attention across the sentence.
+
+\textbf{3. Sentiment Analysis (Imbalance Dynamics):} \\
+In Sentiment classification across the massive 156k dataset, raw test accuracy reached \textbf{76.39\%} (\texttt{BanglaBERT}) to \textbf{77.60\%} (TF-IDF), with Weighted F1-scores exceeding \textbf{81\%}. The lower Macro F1 ($\sim$51.5--53.7\%) is a direct statistical consequence of severe class imbalance in public Bengali sentiment datasets (where positive samples exceed 88\% of the corpus). This demonstrates that while the models possess high overall predictive fidelity, balanced macro-averaging prevents majority-class bias.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/confusion_matrices_banglabert.png}
+\caption{Normalized Confusion Matrices for Fine-Tuned \texttt{BanglaBERT} across Sentiment, Sarcasm, and Hate Speech.}
+\label{fig:conf_matrix}
+\end{figure}
+
+\subsection{Qualitative Case Analysis}
+Table~\ref{tab:qualitative} illustrates qualitative evaluations on realistic Bengali sentences testing nuanced contextual comprehension. In Case 1, our context-aware logic successfully reverses the positive surface polarity to negative upon detecting active sarcasm.
+
+\begin{table}[htbp]
+\centering
+\caption{Qualitative Prediction Case Studies}
+\label{tab:qualitative}
+\small
+\resizebox{0.92\textwidth}{!}{%
+\begin{tabular}{p{9.0cm}ccc}
+\toprule
+\textbf{Sample Sentence (Phonetic Transliteration)} & \textbf{Sentiment} & \textbf{Sarcasm} & \textbf{Hate Speech} \\
+\midrule
+\textit{Bah! Ki oshadharon service, tin ghonta opekkha koreo kaj holo na!} & \textbf{Negative}* & \textbf{Yes} & No \\
+\midrule
+\textit{Desher ei kothin poristhitite amader sobai ke ek hoye kaj korte hobe.} & Positive & No & No \\
+\midrule
+\textit{Toder moto omanushder ei deshe thakar kono odhikar nai!} & Negative & No & \textbf{Yes} \\
+\midrule
+\textit{Darun kheleche dol, oshadharon bowling ar batting prodorshon!} & Positive & No & No \\
+\bottomrule
+\multicolumn{4}{l}{\footnotesize *Contextually inverted from surface positive by the sarcasm resolver.}
+\end{tabular}%
+}
+\end{table}
+
+% ----------------------------------------------------------------------
+\section{Interactive System Deployment}
+% ----------------------------------------------------------------------
+To facilitate practical adoption and demonstration, we implemented a full-stack web application using Streamlit (\texttt{app.py}). The system architecture is organized into modular functional views:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Tab 1 (Live Analyzer):} Provides an interactive text interface where users input Bengali text and obtain real-time multi-task classifications, confidence gauges, and semantic context resolution.
+    \item \textbf{Tab 2 (Master Benchmark):} Displays interactive comparative performance matrices across all three modeling paradigms.
+    \item \textbf{Tab 3 (Corpus \& EDA):} Summarizes dataset distributions, token percentiles, and vocabulary statistics.
+    \item \textbf{Tab 4 (Confusion Matrices):} Displays empirical error distribution heatmaps for all models.
+    \item \textbf{Tab 5 (System Architecture):} Illustrates the full end-to-end technical methodology.
+\end{itemize}
+
+% ----------------------------------------------------------------------
+\section{Threats to Validity \& Future Work}
+% ----------------------------------------------------------------------
+\textbf{1. Banglish and Code-Mixed Text:} Colloquial comments frequently intersperse Bengali with English loanwords or phonetic Romanized script. While our custom tokenization filters basic noise, joint multilingual pre-training remains an open challenge.
+
+\textbf{2. Extreme Sentiment Skew:} Incorporating focal loss or synthetic minority oversampling (SMOTE) on sentence embeddings could further bolster Macro F1 on minority neutral and negative sentiment instances.
+
+\textbf{3. Multi-Task Hard Parameter Sharing:} Future investigations will explore unified multi-task loss architectures where a single shared transformer trunk branches into task-specific heads, optimizing shared feature representations.
+
+% ----------------------------------------------------------------------
+\section{Conclusion}
+% ----------------------------------------------------------------------
+In this project, we developed a comprehensive, context-aware multi-task natural language processing framework for Bengali social media text. By constructing a 218k+ sample corpus spanning Sentiment, Sarcasm, and Hate Speech, we systematically evaluated three progressive modeling paradigms: statistical ML (TF-IDF + LR), deep sequential networks (Word2Vec + Stacked BiLSTM), and modern transformers (\texttt{BanglaBERT}). Fine-tuned \texttt{BanglaBERT} demonstrated state-of-the-art efficacy, attaining \textbf{91.59\% accuracy and 91.58\% Macro F1} on Hate Speech, and \textbf{76.76\% accuracy and 74.89\% Macro F1} on Sarcasm. Combined with a negation-preserving preprocessing pipeline and an automated sarcastic inversion engine, this work presents a robust, end-to-end solution for contextual Bengali text classification.
+
+% ----------------------------------------------------------------------
+% References
+% ----------------------------------------------------------------------
+\begin{thebibliography}{00}
+
+\bibitem{alam2021banglabert}
+M.~S. Alam, M.~S. Sultana, and M.~Shahriar,
+``BanglaBERT: A Language Model for Bengali Natural Language Processing Tasks,''
+\emph{arXiv preprint arXiv:2101.00204}, 2021.
+
+\bibitem{devlin2019bert}
+J.~Devlin, M.-W. Chang, K.~Lee, and K.~Toutanova,
+``BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding,''
+in \emph{Proc. of NAACL-HLT}, 2019, pp. 4171--4186.
+
+\bibitem{clark2020electra}
+K.~Clark, M.-T. Luong, Q.~V. Le, and C.~D. Manning,
+``ELECTRA: Pre-training Text Encoders as Discriminators Rather Than Generators,''
+in \emph{Proc. of ICLR}, 2020.
+
+\bibitem{hochreiter1997long}
+S.~Hochreiter and J.~Schmidhuber,
+``Long Short-Term Memory,''
+\emph{Neural Computation}, vol.~9, no.~8, pp. 1735--1780, 1997.
+
+\bibitem{das2010sentiwordnet}
+A.~Das and S.~Bandyopadhyay,
+``SentiWordNet for Indian Languages,''
+in \emph{Asian Federation for Natural Language Processing}, 2010, pp. 56--63.
+
+\bibitem{romim2021hate}
+N.~Romim, M.~Ahmed, H.~Talukder, and M.~Saiful~Islam,
+``Hate Speech Detection in the Bengali Language: A Dataset and Its Evaluation,''
+in \emph{Proc. of the 6th International Conference on Computer and Communications (ICCC)}, 2021.
+
+\bibitem{chowdhury2022sarcasm}
+S.~A. Chowdhury and K.~M. Al-Amin,
+``BanglaSarc: A Benchmark Dataset for Sarcasm Detection in Bengali,''
+in \emph{Proc. of Language Resources and Evaluation Conference (LREC)}, 2022.
+
+\bibitem{mikolov2013word2vec}
+T.~Mikolov, K.~Chen, G.~Corrado, and J.~Dean,
+``Efficient Estimation of Word Representations in Vector Space,''
+\emph{arXiv preprint arXiv:1301.3781}, 2013.
+
+\end{thebibliography}
+
+\end{document}

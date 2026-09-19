@@ -1,4 +1,4 @@
-# Master Comparative Evaluation Matrix (CSE 4121 NLP Project)
+# Master Comparative Evaluation Matrix (CSE 4122 NLP Project)
 
 Comprehensive benchmark across all three modeling paradigms on identical official test splits:
 

@@ -2,13 +2,13 @@
 Unified Multi-Task Inference Pipeline
 Context-Aware Bangla Text Analyzer for Sentiment, Sarcasm, and Hate Speech Detection.
 
-Academic Context: CSE 4121 (NLP Sessional), Dept. of CSE, KUET.
+Academic Context: CSE 4122 (NLP Sessional), Dept. of CSE, KUET.
 Team: Md. Tariful Islam Jony (2107119) & Siyam Khan (2107120)
 
 Integrates all three modeling paradigms:
-1. TF-IDF + Balanced Logistic Regression (~2 ms)
-2. Dense Word2Vec (128-d) + PyTorch Stacked BiLSTM (~5 ms)
-3. Fine-Tuned sagorsarker/bangla-bert-base Transformer (~40-200 ms)
+1. TF-IDF + Balanced Logistic Regression
+2. Dense Word2Vec (128-d) + PyTorch Stacked BiLSTM
+3. Fine-Tuned sagorsarker/bangla-bert-base Transformer
 4. Context-Aware Cross-Task Ensemble (Proposal-Aligned Formulation)
 """
 

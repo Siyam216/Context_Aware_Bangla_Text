@@ -88,7 +88,7 @@ def compile_master_benchmark():
     print(f"[+] Master Benchmark JSON saved -> {OUTPUT_JSON}")
 
     # 2. Export Markdown Table
-    md_content = "# Master Comparative Evaluation Matrix (CSE 4121 NLP Project)\n\n"
+    md_content = "# Master Comparative Evaluation Matrix (CSE 4122 NLP Project)\n\n"
     md_content += "Comprehensive benchmark across all three modeling paradigms on identical official test splits:\n\n"
     md_content += "| Task | Model Paradigm | Test Accuracy (%) | Macro Precision (%) | Macro Recall (%) | Macro F1-Score (%) | Weighted F1 (%) |\n"
     md_content += "| :--- | :--- | :---: | :---: | :---: | :---: | :---: |\n"

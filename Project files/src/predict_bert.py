@@ -64,7 +64,7 @@ class BanglaTextAnalyzerBERT:
         dir_map = {
             "sentiment": "banglabert_sentiment",
             "sarcasm": "banglabert_sarcasm",
-            "hate_speech": "banglabert_hate"
+            "hate_speech": "banglabert_hate" if os.path.exists(os.path.join(self.models_dir, "banglabert_hate")) else "banglabert_hate_speech"
         }
         for task_name, dir_name in dir_map.items():
             model_path = os.path.join(self.models_dir, dir_name)

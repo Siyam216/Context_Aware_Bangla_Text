@@ -472,13 +472,23 @@ with tab_eda:
         with open(eda_summary_path, "r", encoding="utf-8") as f:
             eda_data = json.load(f)
 
+        sent_total = sum(eda_data["sentiment"]["splits"][s]["total_rows"] for s in ["train", "val", "test"])
+        sarc_total = sum(eda_data["sarcasm"]["splits"][s]["total_rows"] for s in ["train", "val", "test"])
+        hate_total = sum(eda_data["hate_speech"]["splits"][s]["total_rows"] for s in ["train", "val", "test"])
+
+        sent_train = eda_data["sentiment"]["splits"]["train"]["total_rows"]
+        sarc_train = eda_data["sarcasm"]["splits"]["train"]["total_rows"]
+        hate_train = eda_data["hate_speech"]["splits"]["train"]["total_rows"]
+
         c1, c2, c3 = st.columns(3)
         with c1:
-            st.metric("Total Sentiment Corpus", "312,128 sentences", "90% Positive Skew")
+            st.metric("Total Sentiment Corpus", f"{sent_total:,} sentences", f"Train: {sent_train:,}")
         with c2:
-            st.metric("Total Sarcasm Corpus", "12,096 sentences", "67% Non-Sarc / 33% Sarc")
+            st.metric("Total Sarcasm Corpus", f"{sarc_total:,} sentences", f"Train: {sarc_train:,}")
         with c3:
-            st.metric("Total Hate Speech Corpus", "50,309 sentences", "52% Non-Hate / 48% Hate")
+            st.metric("Total Hate Speech Corpus", f"{hate_total:,} sentences", f"Train: {hate_train:,}")
+
+        st.caption("ℹ️ *Metric cards reflect the complete corpus across Train + Validation + Test splits. Figure 2 below shows the specific class distributions of the Training splits.*")
 
     st.markdown("---")
     eda_col1, eda_col2 = st.columns(2)

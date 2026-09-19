@@ -71,9 +71,9 @@
 - **Slide Title:** Corpus Standardization & Linguistic Preprocessing
 - **Key Content:**
   - **Three Curated Datasets:**
-    - **Sentiment:** 312,128 sentences (Balanced across 90% positive skew using balanced loss weighting).
-    - **Sarcasm:** 12,096 sentences from Bengali social media (BanglaSarc3).
-    - **Hate Speech:** 50,309 sentences from political, religious, and social commentary.
+    - **Sentiment:** 156,010 sentences (109,229 Train, 15,569 Val, 31,212 Test) with ~90% positive skew.
+    - **Sarcasm:** 12,089 sentences from Bengali social media (BanglaSarc3).
+    - **Hate Speech:** 50,272 sentences from political, religious, and social commentary.
   - **Unified Split Protocol:** Strict 80% Train, 10% Validation, 10% Test across all tasks.
   - **Negation-Preserving Preprocessor:**
     - Normalizes Bengali characters, strips noisy URLs, mentions, HTML tags, and non-printable bytes.
@@ -114,7 +114,7 @@
   - 110M parameter pretrained bidirectional transformer encoder.
   - WordPiece subword tokenization (vocabulary: 102,025 tokens), max sequence length $L=64$.
   - Sequence Classification heads fine-tuned with AdamW ($\text{lr} = 2 \times 10^{-5}$), linear warmup scheduler, and balanced cross-entropy.
-  - **Key Result:** **Highest Sarcastic Class Recall (78.05%)** across all paradigms. Captures subtle contrast between praise prefix and disappointing suffix.
+  - **Key Result:** **Champion in Hate Speech (91.59% Accuracy, 91.58% Macro F1)** and **Sarcasm (76.76% Accuracy, 74.89% Macro F1)**. Captures subtle contextual semantics and complex abusive patterns.
 
 ---
 
@@ -125,13 +125,13 @@
   | :--- | :--- | :---: | :---: | :---: |
   | **Sentiment** | **TF-IDF + Logistic Regression** | **77.60%** | **53.71%** | **82.24%** |
   | Sentiment | Word2Vec + Stacked BiLSTM | 76.60% | 53.27% | 81.96% |
-  | Sentiment | Fine-Tuned BanglaBERT | 62.46% | 40.75% | 70.95% |
-  | **Sarcasm** | **TF-IDF + Logistic Regression** | **74.94%** | **72.89%** | **75.40%** |
+  | Sentiment | Fine-Tuned BanglaBERT | 76.39% | 51.51% | 81.29% |
+  | Sarcasm | TF-IDF + Logistic Regression | 74.94% | 72.89% | 75.40% |
   | Sarcasm | Word2Vec + Stacked BiLSTM | 74.36% | 72.00% | 74.74% |
-  | Sarcasm | Fine-Tuned BanglaBERT | 73.86% | 72.52% | 74.57% *(Recall: 78.1%)* |
-  | **Hate Speech**| TF-IDF + Logistic Regression | 86.61% | 86.52% | 86.57% |
-  | **Hate Speech**| **Word2Vec + Stacked BiLSTM** | **88.52%** | **88.50%** | **88.52%** |
-  | Hate Speech| Fine-Tuned BanglaBERT | 76.71% | 76.68% | 76.71% |
+  | **Sarcasm** | **Fine-Tuned BanglaBERT** | **76.76%** | **74.89%** | **77.19%** |
+  | Hate Speech| TF-IDF + Logistic Regression | 86.61% | 86.52% | 86.57% |
+  | Hate Speech| Word2Vec + Stacked BiLSTM | 88.52% | 88.50% | 88.52% |
+  | **Hate Speech**| **Fine-Tuned BanglaBERT** | **91.59%** | **91.58%** | **91.59%** |
 
 ---
 

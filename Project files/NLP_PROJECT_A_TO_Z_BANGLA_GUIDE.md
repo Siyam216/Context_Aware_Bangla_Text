@@ -160,15 +160,21 @@ Balanced LR    Stacked BiLSTM       Full Fine-Tuning (Colab T4 GPU)
 PyTorch-এ `nn.Embedding(num_embeddings, embedding_dim)` মূলত একটি বড় ওয়েট ম্যাট্রিক্স $\mathbf{W} \in \mathbb{R}^{|\mathcal{V}| \times d}$।  
 ধরা যাক আমাদের এমবেডিং ডাইমেনশন $d = 3$। তাহলে ম্যাট্রিক্সটি দেখতে এমন:
 
-$$\mathbf{W} = \begin{bmatrix}
+$$
+\mathbf{W} = \begin{bmatrix}
 0.20 & 0.80 & 0.10 \\
 0.15 & 0.75 & 0.20 \\
 \mathbf{0.90} & \mathbf{0.10} & \mathbf{0.40} \\
 -0.85 & 0.05 & -0.30
-\end{bmatrix}$$
+\end{bmatrix}
+$$
 
 যখন আমরা One-Hot ভেক্টর $\mathbf{x}$ দিয়ে ম্যাট্রিক্স $\mathbf{W}$-কে গুণ করি ($\mathbf{x}^T \mathbf{W}$), তখন মূলত ম্যাট্রিক্সের **২ নম্বর রো (Row 2)** সিলেক্ট হয়ে যায়:
-$$\mathbf{e}_{\text{love}} = [0.90, 0.10, 0.40]$$
+
+$$
+\mathbf{e}_{\text{love}} = [0.90, 0.10, 0.40]
+$$
+
 (এটি হলো ‘ভালোবাসি’ শব্দের ৩-ডাইমেনশনাল এমবেডিং ভেক্টর)
 এভাবেই এমবেডিং লেয়ার একটি সিম্পল লুকআপ টেবিল (Lookup Table) হিসেবে কাজ করে শব্দকে ৩ ডাইমেনশনের ডেন্স সংখ্যায় রূপান্তর করে।
 
@@ -178,16 +184,26 @@ $$\mathbf{e}_{\text{love}} = [0.90, 0.10, 0.40]$$
 স্যার জিজ্ঞেস করতে পারেন: *"কম্পিউটার কীভাবে বুঝল ভালোবাসি আর নিন্দা বিপরীত শব্দ?"*
 
 **ফর্মুলা:**
-$$\text{Cosine Similarity}(\mathbf{u}, \mathbf{v}) = \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\| \|\mathbf{v}\|}$$
+
+$$
+\text{Cosine Similarity}(\mathbf{u}, \mathbf{v}) = \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\| \|\mathbf{v}\|}
+$$
 
 ১. $\mathbf{u} = \mathbf{e}_{\text{love}} = [0.90, 0.10, 0.40]$ (‘ভালোবাসি’ শব্দের ভেক্টর)  
    - দৈর্ঘ্য $\|\mathbf{u}\| = \sqrt{0.90^2 + 0.10^2 + 0.40^2} = \sqrt{0.81 + 0.01 + 0.16} = \sqrt{0.98} \approx 0.9899$  
 ২. $\mathbf{v} = \mathbf{e}_{\text{hate}} = [-0.85, 0.05, -0.30]$ (‘নিন্দা’ শব্দের ভেক্টর)  
    - দৈর্ঘ্য $\|\mathbf{v}\| = \sqrt{(-0.85)^2 + 0.05^2 + (-0.30)^2} = \sqrt{0.7225 + 0.0025 + 0.09} = \sqrt{0.815} \approx 0.9028$  
 ৩. ডট প্রোডাক্ট ($\mathbf{u} \cdot \mathbf{v}$):
-   $$\mathbf{u} \cdot \mathbf{v} = (0.90 \times -0.85) + (0.10 \times 0.05) + (0.40 \times -0.30) = -0.765 + 0.005 - 0.120 = -0.880$$
+
+$$
+\mathbf{u} \cdot \mathbf{v} = (0.90 \times -0.85) + (0.10 \times 0.05) + (0.40 \times -0.30) = -0.765 + 0.005 - 0.120 = -0.880
+$$
+
 ৪. চূড়ান্ত কসাইন সিমিলারিটি:
-   $$\text{Sim}(\mathbf{u}, \mathbf{v}) = \frac{-0.880}{0.9899 \times 0.9028} = \frac{-0.880}{0.8937} \approx -0.9847$$
+
+$$
+\text{Sim}(\mathbf{u}, \mathbf{v}) = \frac{-0.880}{0.9899 \times 0.9028} = \frac{-0.880}{0.8937} \approx -0.9847
+$$
 
 **ফলাফল:** সিমিলারিটি স্কোর **$-0.9847$** (অর্থাৎ প্রায় $-1.0$)। এর মানে ভেক্টর স্পেসে এই দুটি শব্দ ১৮০ ডিগ্রি বিপরীতে মুখ করে আছে। এভাবেই এমবেডিং শব্দের মানবিক অর্থ ধারণ করে!
 
@@ -224,33 +240,59 @@ $$\text{Cosine Similarity}(\mathbf{u}, \mathbf{v}) = \frac{\mathbf{u} \cdot \mat
 * **Sublinear Term Frequency Scaling (সাবলিনিয়ার লগ-স্কেলিং):**  
   সাধারণ TF-এ কোনো শব্দ যতবার আসে, তার গুরুত্ব তত গুণ বাড়ে। কিন্তু সামাজিক যোগাযোগ মাধ্যমে কেউ আবেগে বা উত্তেজনায় *“খারাপ”* বা *“ফালতু”* শব্দটি ৫ বার লিখলে বাক্যটি ৫ গুণ বেশি খারাপ হয়ে যায় না!  
   এই স্যাচুরেশন হ্যান্ডেল করতে আমরা সাবলিনিয়ার লগারিদমিক স্কেলিং ব্যবহার করেছি:
-  $$w_{t,d} = (1 + \ln(tf_{t,d})) \times \left( \ln\left(\frac{1 + N}{1 + df_t}\right) + 1 \right) \quad \text{for } tf_{t,d} > 0$$
+
+$$
+w_{t,d} = (1 + \ln(tf_{t,d})) \times \left( \ln\left(\frac{1 + N}{1 + df_t}\right) + 1 \right) \quad \text{for } tf_{t,d} > 0
+$$
+
   - এখানে $tf_{t,d}$ হলো বাক্যে শব্দটির ফ্রিকোয়েন্সি।
   - $N$ হলো মোট ডকুমেন্টের সংখ্যা এবং $df_t$ হলো শব্দটি কতগুলো ভিন্ন ডকুমেন্টে এসেছে।
   - যদি $tf_{t,d} = 10$ হয়, তবে লিনিয়ার স্কেলে টার্ম ওয়েট হতো ১০, অথচ সাবলিনিয়ার স্কেলে তা দাঁড়ায় $1 + \ln(10) = 1 + 2.302 = 3.302$। ফলে আউটলায়ার বা স্প্যামিং সম্পূর্ণ প্রশমিত হয়।
 
 * **L2 Normalization (ইউক্লিডিয়ান নরমালাইজেশন):**  
   লম্বা টেক্সটের প্রতি মডেলের বায়াস দূর করতে প্রতিটি ডকুমেন্ট ভেক্টর $\mathbf{w}$ কে তার ইউক্লিডিয়ান নর্ম দিয়ে ভাগ করে একক দৈর্ঘ্যের স্পার্স ভেক্টরে রূপান্তর করা হয়:
-  $$\mathbf{x} = \frac{\mathbf{w}}{\|\mathbf{w}\|_2} = \frac{\mathbf{w}}{\sqrt{\sum_{j=1}^{20000} w_j^2}}$$
+
+$$
+\mathbf{x} = \frac{\mathbf{w}}{\|\mathbf{w}\|_2} = \frac{\mathbf{w}}{\sqrt{\sum_{j=1}^{20000} w_j^2}}
+$$
 
 * **Multinomial Logistic Regression Decision Boundary:**  
   প্রতিটি ক্লাস $c \in \{0, \dots, K-1\}$ এর জন্য মডেল একটি পৃথক ওয়েট ভেক্টর $\mathbf{w}_c \in \mathbb{R}^{20000}$ এবং বায়াস $b_c \in \mathbb{R}$ শেখে:
-  $$z_c = \mathbf{w}_c^T \mathbf{x} + b_c = \sum_{j=1}^{20000} w_{c,j} x_j + b_c$$
+
+$$
+z_c = \mathbf{w}_c^T \mathbf{x} + b_c = \sum_{j=1}^{20000} w_{c,j} x_j + b_c
+$$
+
   এরপর Multinomial Softmax ফাংশন দিয়ে একে প্রোবাবিলিটিতে রূপান্তর করা হয়:
-  $$P(Y = c \mid \mathbf{x}) = \frac{e^{z_c}}{\sum_{k=1}^K e^{z_k}}$$
+
+$$
+P(Y = c \mid \mathbf{x}) = \frac{e^{z_c}}{\sum_{k=1}^K e^{z_k}}
+$$
 
 * **অপ্টিমাইজেশন ও লস ফাংশন (L2-Regularized Cross-Entropy):**  
   মডেলটি L-BFGS (Limited-memory Broyden–Fletcher–Goldfarb–Shanno) অপ্টিমাইজার দিয়ে নিচের কস্ট ফাংশন মিনিমাইজ করে:
-  $$\mathcal{J}(\mathbf{W}) = -\sum_{i=1}^M \sum_{k=1}^K \mathbb{I}(y_i = k) \ln P(Y = k \mid \mathbf{x}_i) + \frac{1}{2C} \sum_{k=1}^K \|\mathbf{w}_k\|_2^2$$
+
+$$
+\mathcal{J}(\mathbf{W}) = -\sum_{i=1}^M \sum_{k=1}^K \mathbb{I}(y_i = k) \ln P(Y = k \mid \mathbf{x}_i) + \frac{1}{2C} \sum_{k=1}^K \|\mathbf{w}_k\|_2^2
+$$
+
   - $C$ হলো রেগুলারাইজেশন স্ট্রেংথ ($C = 1.0$)। L2 পেনাল্টি মডেলকে অপ্রয়োজনীয় বড় ওয়েট শিখতে বাধা দিয়ে ওভারফিটিং রোধ করে।
   - L-BFGS একটি Quasi-Newton পদ্ধতি, যা $20000 \times 20000$ সাইজের বিশাল হেসিয়ান (Hessian) ম্যাট্রিক্স সরাসরি ইনভার্ট না করে আগের গ্রেডিয়েন্টের ইতিহাস দিয়ে লো-র‍্যাংক অ্যাপ্রক্সিমেশন করে অতি দ্রুত কনভার্জ করে।
 
 * **Balanced Class Weighting মেকানিজম:**  
   বাংলা সেন্টিমেন্ট ডেটাসেটের ৯০% ডেটা ছিল পজিটিভ। সাধারণ মডেল সব ডেটায় পজিটিভ দাগিয়ে ৯০% এক্যুরেসি পেয়ে যেতে পারে, যা প্রতারণামূলক।  
   তাই আমরা ইনভার্স ক্লাস ফ্রিকোয়েন্সি ওয়েট দিয়েছি:
-  $$W_c = \frac{N_{\text{total}}}{K \cdot N_c}$$
+
+$$
+W_c = \frac{N_{\text{total}}}{K \cdot N_c}
+$$
+
   ফলে সংখ্যালঘু ক্লাসের (Negative/Neutral) প্রতিটি নমুনার জন্য গ্রেডিয়েন্ট আপডেট $W_c$ গুণ বড় হয়:
-  $$\mathbf{w}_c \leftarrow \mathbf{w}_c - \eta \cdot W_c \cdot \nabla_{\mathbf{w}_c} \mathcal{J}$$
+
+$$
+\mathbf{w}_c \leftarrow \mathbf{w}_c - \eta \cdot W_c \cdot \nabla_{\mathbf{w}_c} \mathcal{J}
+$$
+
   এ কারণেই এই ক্লাসিক্যাল মডেলটি অত্যন্ত শক্তিশালী **৮২.২৪% Weighted F1** অর্জন করেছে।
 
 ---
@@ -299,34 +341,66 @@ Classifier:     Spatial Dropout (p=0.3) ──► Dense Linear (128 -> K) ──
 * **ইনপুট রিপ্রেজেন্টেশন ও সিকোয়েন্স শেপিং:**  
   বাংলা বাক্যকে টোকেনাইজ করার পর সর্বোচ্চ দৈর্ঘ্য $T = 50$ টোকেনে ফিক্সড করা হয়। ছোট বাক্যগুলোকে জিরো-প্যাডিং (`pad_sequence`) এবং বড় বাক্যগুলোকে ট্রাঙ্কেট করা হয়।  
   এরপর ১২৮ ডাইমেনশনের Word2Vec কন্টিনিউয়াস এমবেডিং লেয়ারে পাঠানো হয়:
-  $$\mathbf{X} \in \mathbb{R}^{B \times 50 \times 128}$$
+
+$$
+\mathbf{X} \in \mathbb{R}^{B \times 50 \times 128}
+$$
 
 * **BiLSTM-এর অভ্যন্তরীণ ৪টি গেইটের নিখুঁত গাণিতিক অপারেশন:**  
   টাইমস্টেপ $t$-তে ইনপুট ভেক্টর $\mathbf{x}_t \in \mathbb{R}^{128}$ এবং পূর্ববর্তী হিডেন স্টেট $\mathbf{h}_{t-1} \in \mathbb{R}^{64}$ এর ভিত্তিতে প্রতিটি সেলে ৪টি গেইট কাজ করে:
 
   1. **Forget Gate ($f_t$):** পূর্ববর্তী সেল স্টেট থেকে অপ্রয়োজনীয় তথ্য কতটা মুছে ফেলা হবে:
-     $$f_t = \sigma(\mathbf{W}_f \mathbf{x}_t + \mathbf{U}_f \mathbf{h}_{t-1} + \mathbf{b}_f) \in (0, 1)^{64}$$
+
+$$
+f_t = \sigma(\mathbf{W}_f \mathbf{x}_t + \mathbf{U}_f \mathbf{h}_{t-1} + \mathbf{b}_f) \in (0, 1)^{64}
+$$
+
   2. **Input Gate ($i_t$):** বর্তমান ইনপুট থেকে কোন নতুন তথ্য গ্রহণ করা হবে:
-     $$i_t = \sigma(\mathbf{W}_i \mathbf{x}_t + \mathbf{U}_i \mathbf{h}_{t-1} + \mathbf{b}_i) \in (0, 1)^{64}$$
+
+$$
+i_t = \sigma(\mathbf{W}_i \mathbf{x}_t + \mathbf{U}_i \mathbf{h}_{t-1} + \mathbf{b}_i) \in (0, 1)^{64}
+$$
+
   3. **Candidate Memory ($\tilde{C}_t$):** নতুন সম্ভাব্য স্মৃতি তৈরি:
-     $$\tilde{C}_t = \tanh(\mathbf{W}_c \mathbf{x}_t + \mathbf{U}_c \mathbf{h}_{t-1} + \mathbf{b}_c) \in (-1, 1)^{64}$$
+
+$$
+\tilde{C}_t = \tanh(\mathbf{W}_c \mathbf{x}_t + \mathbf{U}_c \mathbf{h}_{t-1} + \mathbf{b}_c) \in (-1, 1)^{64}
+$$
+
   4. **Cell State Update ($C_t$):** পুরনো স্মৃতির সাথে নতুন স্মৃতির পয়েন্ট-ওয়াইজ ব্লেন্ডিং:
-     $$C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t$$
+
+$$
+C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t
+$$
+
      *(এখানে $\odot$ হলো হাডামার বা এলিমেন্ট-ওয়াইজ গুণন)*
+
   5. **Output Gate ($o_t$) ও Hidden State ($h_t$):** চূড়ান্ত হিডেন ভেক্টর নির্ধারণ:
-     $$o_t = \sigma(\mathbf{W}_o \mathbf{x}_t + \mathbf{U}_o \mathbf{h}_{t-1} + \mathbf{b}_o)$$
-     $$\mathbf{h}_t = o_t \odot \tanh(C_t) \in (-1, 1)^{64}$$
+
+$$
+o_t = \sigma(\mathbf{W}_o \mathbf{x}_t + \mathbf{U}_o \mathbf{h}_{t-1} + \mathbf{b}_o)
+$$
+
+$$
+\mathbf{h}_t = o_t \odot \tanh(C_t) \in (-1, 1)^{64}
+$$
 
 * **দ্বিমুখী ইনফরমেশন ফ্লো (Bidirectional Pass):**
   - **ফরোয়ার্ড এলএসটিএম:** বাক্যটিকে বাম থেকে ডানে পড়ে ($\overrightarrow{\mathbf{h}}_1 \to \overrightarrow{\mathbf{h}}_T$)।
   - **ব্যাকওয়ার্ড এলএসটিএম:** বাক্যটিকে ডান থেকে বামে পড়ে ($\overleftarrow{\mathbf{h}}_T \to \overleftarrow{\mathbf{h}}_1$)।
   - ফলে ফরোয়ার্ডের শেষ স্টেট $\overrightarrow{\mathbf{h}}_T \in \mathbb{R}^{64}$ এবং ব্যাকওয়ার্ডের প্রথম স্টেট $\overleftarrow{\mathbf{h}}_1 \in \mathbb{R}^{64}$ কনক্যাটেনেট করে ১২৮ ডাইমেনশনের একটি পূর্ণাঙ্গ কন্টেক্সট ভেক্টর তৈরি হয়:
-    $$\mathbf{h}_{\text{final}} = [\overrightarrow{\mathbf{h}}_T \,\|\, \overleftarrow{\mathbf{h}}_1] \in \mathbb{R}^{128}$$
+
+$$
+\mathbf{h}_{\text{final}} = [\overrightarrow{\mathbf{h}}_T \,\|\, \overleftarrow{\mathbf{h}}_1] \in \mathbb{R}^{128}
+$$
 
 * **রেগুলারাইজেশন ও ক্লাসিফিকেশন হেড:**
   - ওভারফিটিং রোধে আমরা **Spatial Dropout (1D Dropout, $p = 0.3$)** ব্যবহার করেছি, যা ইনডিভিজুয়াল অ্যাক্টিভেশন না মুছে পুরো ফিচার চ্যানেলকে ড্রপ করে।
   - এরপর একটি লিনিয়ার প্রজেকশন লেয়ার দিয়ে ক্লাস সংখ্যা $K$-তে প্রজেক্ট করে Softmax প্রয়োগ করা হয়:
-    $$\hat{\mathbf{y}} = \text{Softmax}(\mathbf{W}_{\text{head}} \mathbf{h}_{\text{final}} + \mathbf{b}_{\text{head}})$$
+
+$$
+\hat{\mathbf{y}} = \text{Softmax}(\mathbf{W}_{\text{head}} \mathbf{h}_{\text{final}} + \mathbf{b}_{\text{head}})
+$$
 
 * **ট্রেনিং হাইপারপ্যারামিটার:**  
   Adam Optimizer ($\beta_1=0.9, \beta_2=0.999$, $\text{lr} = 1 \times 10^{-3}$), Batch Size = 64, ক্লাস-ওয়েটেড Cross-Entropy Loss, Early Stopping (Patience = 3 epochs)।
@@ -385,9 +459,17 @@ Input Tokens ──► Token Embeddings + Positional Encodings (768-d)
 
 * **Scaled Dot-Product Self-Attention (সেলফ-অ্যাটেনশনের মূল সমীকরণ):**  
   ইনপুট ম্যাট্রিক্স $\mathbf{X} \in \mathbb{R}^{T \times 768}$ তিনটি ওয়েট ম্যাট্রিক্স দিয়ে গুণ হয়ে Query ($Q$), Key ($K$) এবং Value ($V$) তৈরি করে:
-  $$Q = \mathbf{X} \mathbf{W}^Q, \quad K = \mathbf{X} \mathbf{W}^K, \quad V = \mathbf{X} \mathbf{W}^V \quad (\mathbf{W} \in \mathbb{R}^{768 \times 64})$$
+
+$$
+Q = \mathbf{X} \mathbf{W}^Q, \quad K = \mathbf{X} \mathbf{W}^K, \quad V = \mathbf{X} \mathbf{W}^V \quad (\mathbf{W} \in \mathbb{R}^{768 \times 64})
+$$
+
   সেলফ-অ্যাটেনশনের গাণিতিক ফর্মুলা:
-  $$\text{Attention}(Q, K, V) = \text{Softmax}\left( \frac{QK^T}{\sqrt{d_k}} \right) V$$
+
+$$
+\text{Attention}(Q, K, V) = \text{Softmax}\left( \frac{QK^T}{\sqrt{d_k}} \right) V
+$$
+
   - **Query ($Q$):** বর্তমান শব্দটি বাক্যের অন্যান্য শব্দের কাছ থেকে কী ধরনের তথ্য খুঁজছে।
   - **Key ($K$):** প্রতিটি শব্দের কাছে কী ধরনের প্রাসঙ্গিক তথ্য সংরক্ষিত আছে।
   - **Value ($V$):** মিল পাওয়া গেলে কতটুকু ইনফরমেশন আউটপুটে ট্রান্সফার করা হবে।
@@ -399,7 +481,11 @@ Input Tokens ──► Token Embeddings + Positional Encodings (768-d)
 
 * **Multi-Head Attention ($h = 12$):**  
   মডেলটি একক কোনো অ্যাটেনশনে সীমাবদ্ধ না থেকে ১২টি ভিন্ন হেড দিয়ে সমান্তরালভাবে বাক্যকে পর্যবেক্ষণ করে:
-  $$\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \text{head}_2, \dots, \text{head}_{12}) \mathbf{W}^O$$
+
+$$
+\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \text{head}_2, \dots, \text{head}_{12}) \mathbf{W}^O
+$$
+
   - হেড ১ হয়তো ব্যাকরণগত সাবজেক্ট-ভার্ব সম্পর্ক দেখছে।
   - হেড ৪ হয়তো প্রশংসাসূচক শব্দের সাথে শেষের নেগেশনের বৈপরীত্য খুঁজছে।
   - হেড ৮ হয়তো উস্কানিমূলক স্ল্যাং ও টার্গেটেড ব্যক্তির সম্পর্ক দেখছে।
@@ -407,8 +493,14 @@ Input Tokens ──► Token Embeddings + Positional Encodings (768-d)
 * **`[CLS]` গ্লোবাল ভেক্টর ও ক্লাসিফিকেশন হেড:**  
   ইনপুটের একদম শুরুতে স্পেশাল টোকেন `[CLS]` (Classification Token) যুক্ত থাকে। ১২টি এনকোডার লেয়ারের প্রতিটি শব্দের সেলফ-অ্যাটেনশন পার হওয়ার পর `[CLS]` টোকেনের ফাইনাল হিডেন স্টেট $\mathbf{h}_{[\text{CLS}]} \in \mathbb{R}^{768}$ পুরো বাক্যের একটি সার্বিক অর্থ ধারণ করে।  
   একে একটি Tanh অ্যাক্টিভেটেড লিনিয়ার লেয়ার এবং ফাইনাল ক্লাসিফিকেশন হেডে পাস করা হয়:
-  $$\mathbf{z} = \mathbf{W}_{\text{out}} \tanh(\mathbf{W}_{\text{dense}} \mathbf{h}_{[\text{CLS}]} + \mathbf{b}_{\text{dense}}) + \mathbf{b}_{\text{out}}$$
-  $$\hat{\mathbf{y}} = \text{Softmax}(\mathbf{z})$$
+
+$$
+\mathbf{z} = \mathbf{W}_{\text{out}} \tanh(\mathbf{W}_{\text{dense}} \mathbf{h}_{[\text{CLS}]} + \mathbf{b}_{\text{dense}}) + \mathbf{b}_{\text{out}}
+$$
+
+$$
+\hat{\mathbf{y}} = \text{Softmax}(\mathbf{z})
+$$
 
 * **ফাইন-টিউনিং প্যারামিটার ও জিপিইউ ট্রেনিং:**  
   গুগল কোলাবের **Nvidia Tesla T4 (16GB VRAM)** ব্যবহার করে আমরা ১১০ মিলিয়ন প্যারামিটারই সম্পূর্ণ আনফ্রিজ (Full Fine-Tuning) করে ট্রেইন করেছি।  
@@ -490,7 +582,11 @@ Input Tokens ──► Token Embeddings + Positional Encodings (768-d)
 👉 **স্যারকে বোঝানোর নিখুঁত উত্তর:**  
 *"স্যার, বাস্তব জীবনের ওপেন-ডোমেইন বাংলা সেন্টিমেন্ট ডেটাসেটে প্রায় ৯০% ডেটাই থাকে পজিটিভ। কোনো ডেটাসেটে যদি ৯০% পজিটিভ ডেটা থাকে, তাহলে একটা বোকা ডামি মডেলও সব বাক্যে 'পজিটিভ' দাগিয়ে ৯০% এক্যুরেসি পেয়ে যাবে! কিন্তু সে নিউট্রাল আর নেগেটিভের কিছুই শিখবে না।  
 **Macro F1** হলো সব ক্লাসের F1-স্কোরের আন-ওয়েটেড গড়:
-$$\text{Macro F1} = \frac{F1_{\text{Negative}} + F1_{\text{Neutral}} + F1_{\text{Positive}}}{3}$$
+
+$$
+\text{Macro F1} = \frac{F1_{\text{Negative}} + F1_{\text{Neutral}} + F1_{\text{Positive}}}{3}
+$$
+
 যেহেতু সংখ্যালঘু ক্লাসগুলোর ডেটা কম ছিল, Macro F1 তাদের সমান গুরুত্ব দিয়ে মূল্যায়ন করে। আমাদের **Weighted F1 ৮২.২৪%**, যা প্রমাণ করে মডেলের সার্বিক প্রেডিকশন অত্যন্ত শক্তিশালী। কিন্তু আমরা কোনো ভুয়া বেশি এক্যুরেসি দিয়ে ফাঁকি দিইনি, বরং আন্তর্জাতিক গবেষণার মতো নিরপেক্ষভাবে Macro F1 রিপোর্ট করেছি।"*
 
 ---
@@ -542,11 +638,18 @@ $$\text{Macro F1} = \frac{F1_{\text{Negative}} + F1_{\text{Neutral}} + F1_{\text
 
 ১. **জিরো-উইডথ ও অদৃশ্য ক্যারেক্টার ক্লিন:**  
    বাংলা সোশ্যাল মিডিয়ায় প্রায়ই অদৃশ্য স্পেস (U+200B Zero-Width Space, U+200C ZWNJ, U+200D ZWJ) থাকে যা মডেলকে বিভ্রান্ত করে। আমাদের ক্লিনার রেগেক্স দিয়ে এগুলো সম্পূর্ণ মুছে ফেলে:
-   $$\text{CleanText} = \text{RegexReplace}(text, \text{r'[\u200B-\u200D\uFEFF]'}, \text{''})$$
+
+   ```python
+   clean_text = re.sub(r'[​-‍﻿]', '', text)
+   ```
 
 ২. **বিরামচিহ্ন ও স্পেশাল ক্যারেক্টার আইসোলেশন:**  
    শব্দের সাথে লেগে থাকা বিরামচিহ্ন আলাদা করা হয় যাতে শব্দ ও বিরামচিহ্ন স্বাধীন টোকেন হিসেবে কাজ করতে পারে:
-   $$\text{Regex}: \text{r'([!?,।])'} \implies \text{r' \1 '}$$
+
+   ```python
+   isolated_punct_text = re.sub(r'([!?,।])', r'  ', clean_text)
+   ```
+
    ফলে `বাহ!` $\implies$ `বাহ !` এবং `না!` $\implies$ `না !` তে রূপান্তরিত হয়।
 
 ৩. **Negation Preservation Engine (নেগেশন সুরক্ষা):**  
@@ -606,9 +709,17 @@ BanglaBERT বাক্যটিকে সাব-ওয়ার্ড লেভে
 - বাক্যে *“অসাধারণ”* শব্দটি ১ বার এসেছে ($tf = 1$)।
 - ট্রেনিং সেটের মোট ডকুমেন্ট সংখ্যা $N = 109,207$ এবং *“অসাধারণ”* শব্দের ডকুমেন্ট ফ্রিকোয়েন্সি $df = 4,200$।
 - সাবলিনিয়ার TF:
-  $$TF_{\text{sublin}} = 1 + \ln(1) = 1.0$$
+
+  $$
+  TF_{\text{sublin}} = 1 + \ln(1) = 1.0
+  $$
+
 - স্মুথড IDF:
-  $$IDF = \ln\left( \frac{1 + N}{1 + df} \right) + 1 = \ln\left( \frac{1 + 109207}{1 + 4200} \right) + 1 = \ln(25.995) + 1 = 3.2579 + 1 = 4.2579$$
+
+  $$
+  IDF = \ln\left( \frac{1 + N}{1 + df} \right) + 1 = \ln\left( \frac{1 + 109207}{1 + 4200} \right) + 1 = \ln(25.995) + 1 = 3.2579 + 1 = 4.2579
+  $$
+
 - অশোধিত ওয়েট: $w = 1.0 \times 4.2579 = 4.2579$।  
 - একইভাবে বিগ্ৰাম *“হলো না”* এর ওয়েট $w = 3.8412$ তৈরি হয়ে ২০,০০০ ডাইমেনশনের একটি স্পার্স ভেক্টরে বসে এবং L2 নরমালাইজড হয়ে যায়।
 
@@ -619,11 +730,18 @@ BanglaBERT বাক্যটিকে সাব-ওয়ার্ড লেভে
 - টোকেন ১৪-এর Key: $\mathbf{k}_{14} \in \mathbb{R}^{64}$
 - তাদের ডট প্রোডাক্ট: $\mathbf{q}_4 \cdot \mathbf{k}_{14} = 18.40$
 - **স্কেলিং মেকানিজম:**
-  $$\text{Scaled Score} = \frac{\mathbf{q}_4 \cdot \mathbf{k}_{14}}{\sqrt{d_k}} = \frac{18.40}{\sqrt{64}} = \frac{18.40}{8} = 2.30$$
+
+  $$
+  \text{Scaled Score} = \frac{\mathbf{q}_4 \cdot \mathbf{k}_{14}}{\sqrt{d_k}} = \frac{18.40}{\sqrt{64}} = \frac{18.40}{8} = 2.30
+  $$
+
 - এই স্কেলড স্কোরটি Softmax-এ গিয়ে একটি উচ্চ অ্যাটেনশন ওয়েট ($\approx 0.38$) লাভ করে।  
 এর মাধ্যমে গাণিতিকভাবে প্রমাণিত হয় যে বাংলাবার্ট বাক্যের শুরুতে থাকা *“অসাধারণ”* এর সাথে বাক্যের শেষে থাকা *“না”* এর সরাসরি একটি শক্তিশালী আন্তঃসম্পর্ক (Attention Link) স্থাপন করেছে!
 - ১২টি লেয়ার পার হয়ে `[CLS]` টোকেনের ফাইনাল ভেক্টর দাঁড়ায়:  
-  $$\mathbf{h}_{[\text{CLS}]} \in \mathbb{R}^{768}$$
+
+  $$
+  \mathbf{h}_{[\text{CLS}]} \in \mathbb{R}^{768}
+  $$
 
 ---
 
@@ -645,17 +763,37 @@ Logits: [-1.45, +2.85]               Logits: [0.82, -0.45, +2.10]          Logit
 
 #### ১. Task 1: Sarcasm Classifier (Binary: 0=Non-Sarcastic, 1=Sarcastic)
 - লিনিয়ার হেডের গুণন শেষে র' লগিটস এলো:
-  $$z_0 = -1.45 \quad (\text{Non-Sarcastic}), \quad z_1 = +2.85 \quad (\text{Sarcastic})$$
+
+$$
+z_0 = -1.45 \quad (\text{Non-Sarcastic}), \quad z_1 = +2.85 \quad (\text{Sarcastic})
+$$
+
 - **এক্সপোনেনশিয়াল রূপান্তর:**
-  $$e^{z_0} = e^{-1.45} \approx 0.23457$$
-  $$e^{z_1} = e^{+2.85} \approx 17.28774$$
+
+$$
+e^{z_0} = e^{-1.45} \approx 0.23457
+$$
+
+$$
+e^{z_1} = e^{+2.85} \approx 17.28774
+$$
+
 - **যোগফল (Denominator):**
-  $$\sum_{j=0}^1 e^{z_j} = 0.23457 + 17.28774 = 17.52231$$
+
+$$
+\sum_{j=0}^1 e^{z_j} = 0.23457 + 17.28774 = 17.52231
+$$
+
 - **Softmax প্রোবাবিলিটি:**
-  $$P(\text{Non-Sarcastic}) = \frac{0.23457}{17.52231} \approx 0.01339$$
-  (অর্থাৎ **১.৩৪%**)
-  $$P(\text{Sarcastic}) = \frac{17.28774}{17.52231} \approx 0.98661$$
-  (অর্থাৎ **৯৮.৬৬%**)
+
+$$
+P(\text{Non-Sarcastic}) = \frac{0.23457}{17.52231} \approx 0.01339 \quad (\mathbf{1.34\%})
+$$
+
+$$
+P(\text{Sarcastic}) = \frac{17.28774}{17.52231} \approx 0.98661 \quad (\mathbf{98.66\%})
+$$
+
 - **ডিসিশন থ্রেশহোল্ড চেক:**
   যেহেতু $P(\text{Sarcastic}) = 0.9866 \ge 0.65$ (কনফিডেন্স থ্রেশহোল্ড),  
   👉 **Sarcasm Decision = YES (Sarcastic, কনফিডেন্স: ৯৮.৬৬%)**।
@@ -664,20 +802,45 @@ Logits: [-1.45, +2.85]               Logits: [0.82, -0.45, +2.10]          Logit
 
 #### ২. Task 2: Sentiment Classifier (3 Classes: 0=Negative, 1=Neutral, 2=Positive)
 - লিনিয়ার হেডের র' লগিটস এলো:
-  $$z_{\text{neg}} = 0.82, \quad z_{\text{neu}} = -0.45, \quad z_{\text{pos}} = 2.10$$
+
+$$
+z_{\text{neg}} = 0.82, \quad z_{\text{neu}} = -0.45, \quad z_{\text{pos}} = 2.10
+$$
+
 - **এক্সপোনেনশিয়াল রূপান্তর:**
-  $$e^{z_{\text{neg}}} = e^{0.82} \approx 2.27050$$
-  $$e^{z_{\text{neu}}} = e^{-0.45} \approx 0.63763$$
-  $$e^{z_{\text{pos}}} = e^{2.10} \approx 8.16617$$
+
+$$
+e^{z_{\text{neg}}} = e^{0.82} \approx 2.27050
+$$
+
+$$
+e^{z_{\text{neu}}} = e^{-0.45} \approx 0.63763
+$$
+
+$$
+e^{z_{\text{pos}}} = e^{2.10} \approx 8.16617
+$$
+
 - **যোগফল (Denominator):**
-  $$\sum_{k=0}^2 e^{z_k} = 2.27050 + 0.63763 + 8.16617 = 11.07430$$
+
+$$
+\sum_{k=0}^2 e^{z_k} = 2.27050 + 0.63763 + 8.16617 = 11.07430
+$$
+
 - **Softmax প্রোবাবিলিটি:**
-  $$P(\text{Negative}) = \frac{2.27050}{11.07430} \approx 0.20502$$
-  (অর্থাৎ **২০.৫০%**)
-  $$P(\text{Neutral}) = \frac{0.63763}{11.07430} \approx 0.05758$$
-  (অর্থাৎ **৫.৭৬%**)
-  $$P(\text{Positive}) = \frac{8.16617}{11.07430} \approx 0.73740$$
-  (অর্থাৎ **৭৩.৭৪%**)
+
+$$
+P(\text{Negative}) = \frac{2.27050}{11.07430} \approx 0.20502 \quad (\mathbf{20.50\%})
+$$
+
+$$
+P(\text{Neutral}) = \frac{0.63763}{11.07430} \approx 0.05758 \quad (\mathbf{5.76\%})
+$$
+
+$$
+P(\text{Positive}) = \frac{8.16617}{11.07430} \approx 0.73740 \quad (\mathbf{73.74\%})
+$$
+
 - **সারফেস লেভেল ডিসিশন (Surface Prediction):**
   মডেলের প্রাথমিক প্রেডিকশন $\text{argmax} \implies$ **Positive (৭৩.৭৪%)**।  
   *(⚠️ **সমস্যা:** সাধারণ কোনো সিস্টেম হলে এই বাক্যে “অসাধারণ” শব্দের উপস্থিতি দেখে একে ভুলভাবে পজিটিভ বলে ঘোষণা করত!)*
@@ -686,17 +849,37 @@ Logits: [-1.45, +2.85]               Logits: [0.82, -0.45, +2.10]          Logit
 
 #### ৩. Task 3: Hate Speech Classifier (Binary: 0=Non-Hate, 1=Hate Speech)
 - লিনিয়ার হেডের র' লগিটস এলো:
-  $$z_{\text{non-hate}} = 2.40, \quad z_{\text{hate}} = -1.80$$
+
+$$
+z_{\text{non-hate}} = 2.40, \quad z_{\text{hate}} = -1.80
+$$
+
 - **এক্সপোনেনশিয়াল রূপান্তর:**
-  $$e^{z_{\text{non-hate}}} = e^{2.40} \approx 11.02318$$
-  $$e^{z_{\text{hate}}} = e^{-1.80} \approx 0.16530$$
+
+$$
+e^{z_{\text{non-hate}}} = e^{2.40} \approx 11.02318
+$$
+
+$$
+e^{z_{\text{hate}}} = e^{-1.80} \approx 0.16530
+$$
+
 - **যোগফল (Denominator):**
-  $$\sum_{j=0}^1 e^{z_j} = 11.02318 + 0.16530 = 11.18848$$
+
+$$
+\sum_{j=0}^1 e^{z_j} = 11.02318 + 0.16530 = 11.18848
+$$
+
 - **Softmax প্রোবাবিলিটি:**
-  $$P(\text{Non-Hate}) = \frac{11.02318}{11.18848} \approx 0.98523$$
-  (অর্থাৎ **৯৮.৫২%**)
-  $$P(\text{Hate}) = \frac{0.16530}{11.18848} \approx 0.01477$$
-  (অর্থাৎ **১.৪৮%**)
+
+$$
+P(\text{Non-Hate}) = \frac{11.02318}{11.18848} \approx 0.98523 \quad (\mathbf{98.52\%})
+$$
+
+$$
+P(\text{Hate}) = \frac{0.16530}{11.18848} \approx 0.01477 \quad (\mathbf{1.48\%})
+$$
+
 - **ডিসিশন:**
   👉 **Hate Speech Decision = NO (Non-Hate, কনফিডেন্স: ৯৮.৫২%)**।
 
@@ -707,21 +890,43 @@ Logits: [-1.45, +2.85]               Logits: [0.82, -0.45, +2.10]          Logit
 আমাদের কাস্টম পোস্ট-প্রসেসিং ইঞ্জিন তিনটি শর্ত প্রোগ্রাম্যাটিক্যালি মূল্যায়ন করে:
 
 1. **শর্ত ১ (সারকাজম উচ্চ নিশ্চিত কি না?):**  
-   $$P(\text{Sarcastic}) \ge 0.65 \implies 0.9866 \ge 0.65 \quad \mathbf{[TRUE]}$$
+
+$$
+P(\text{Sarcastic}) \ge 0.65 \implies 0.9866 \ge 0.65 \quad \mathbf{[TRUE]}
+$$
+
 2. **শর্ত ২ (সারফেস সেন্টিমেন্ট কি পজিটিভ?):**  
-   $$\hat{Y}_{\text{surface}} = \text{Positive} \quad \mathbf{[TRUE]}$$
+
+$$
+\hat{Y}_{\text{surface}} = \text{Positive} \quad \mathbf{[TRUE]}
+$$
+
 3. **শর্ত ৩ (বাক্যে নেগেশন মার্কার আছে কি না?):**  
-   $$\text{Negation Token} \in \text{Tokens} \quad \mathbf{[TRUE]}$$  
+
+$$
+\text{Negation Token} \in \text{Tokens} \quad \mathbf{[TRUE]}
+$$
+
    (বাক্যে সংরক্ষিত `'না'` টোকেন বিদ্যমান)
 
 #### ইনভার্সন অ্যাকশন (Semantic Overwrite):
 যেহেতু তিনটি শর্তই সত্য ($\mathbf{TRUE}$), ইঞ্জিন স্বয়ংক্রিয়ভাবে সেন্টিমেন্টের ভুল প্রেডিকশনকে ফ্লিপ করে:
-$$\hat{Y}_{\text{final\_sentiment}} \leftarrow \text{Negative}$$
+
+$$
+\hat{Y}_{\text{final\_sentiment}} \leftarrow \text{Negative}
+$$
 
 #### ডায়নামিক কনফিডেন্স রিক্যালকুলেশন (Adjusted Confidence):
 ইনভার্ট হওয়ার পর নেগেটিভ সেন্টিমেন্টের চূড়ান্ত কনফিডেন্স নির্ণয় করা হয় সারকাজম এবং নেগেটিভ সম্ভাবনার যৌথ ওজনে:
-$$\text{Conf}_{\text{final}} = \min(1.0, \, P(\text{Sarcastic}) \times 0.90 + P(\text{Negative}) \times 0.50)$$
-$$\text{Conf}_{\text{final}} = \min(1.0, \, 0.98661 \times 0.90 + 0.20502 \times 0.50) = \min(1.0, \, 0.88795 + 0.10251) = 0.99046$$
+
+$$
+\text{Conf}_{\text{final}} = \min\Big(1.0, \, P(\text{Sarcastic}) \times 0.90 + P(\text{Negative}) \times 0.50\Big)
+$$
+
+$$
+\text{Conf}_{\text{final}} = \min(1.0, \, 0.98661 \times 0.90 + 0.20502 \times 0.50) = \min(1.0, \, 0.88795 + 0.10251) = 0.99046
+$$
+
 (অর্থাৎ চূড়ান্ত সমন্বিত কনফিডেন্স **৯৯.০৫%**)
 
 👉 **ভাষাতাত্ত্বিক জাস্টিফিকেশন (Linguistic Rationale):**  

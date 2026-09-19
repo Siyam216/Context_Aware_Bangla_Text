@@ -1,6 +1,6 @@
 """
 Unified Multi-Task Inference Pipeline
-Context-Aware Bangla Text Analyzer for Sentiment, Sarcasm, and Hate Speech Detection.
+Context Aware Bangla Text Analyzer for Sentiment, Sarcasm, and Hate Speech Detection.
 
 Academic Context: CSE 4122 (NLP Sessional), Dept. of CSE, KUET.
 Team: Md. Tariful Islam Jony (2107119) & Siyam Khan (2107120)
@@ -9,7 +9,7 @@ Integrates all three modeling paradigms:
 1. TF-IDF + Balanced Logistic Regression
 2. Dense Word2Vec (128-d) + PyTorch Stacked BiLSTM
 3. Fine-Tuned sagorsarker/bangla-bert-base Transformer
-4. Context-Aware Cross-Task Ensemble (Proposal-Aligned Formulation)
+4. Context Aware Cross-Task Ensemble (Proposal-Aligned Formulation)
 """
 
 import os
@@ -27,11 +27,31 @@ from predict_lr import BanglaTextAnalyzerLR
 from predict_bilstm import BanglaTextAnalyzerBiLSTM
 from predict_bert import BanglaTextAnalyzerBERT
 
+# Sentiment Lexicon anchors for factual neutral detection
+POS_WORDS = {
+    'ভালো', 'চমৎকার', 'সুন্দর', 'অসাধারণ', 'সেরা', 'ধন্যবাদ', 'ভালোবাসি', 'উপকারী', 
+    'দারুণ', 'আনন্দ', 'পছন্দ', 'খুশি', 'সন্তুষ্ট', 'সফল', 'অপূর্ব', 'দারুন', 'ভালোই', 
+    'উপকার', 'সাধুবাদ', 'প্রশংসা', 'আরামদায়ক', 'উপভোগ', 'প্রিয়', 'উৎকৃষ্ট', 'ভালোবাসা',
+    'লাভজনক', 'সুনাম', 'মিষ্টি'
+}
+
+NEG_WORDS = {
+    'খারাপ', 'বাজে', 'জঘন্য', 'ফালতু', 'বিরক্ত', 'কষ্ট', 'দুঃখ', 'লজ্জা', 'ক্ষতি', 
+    'ব্যর্থ', 'অসহ্য', 'ঘৃণা', 'নষ্ট', 'ঠকা', 'ধোঁকা', 'অপদার্থ', 'হয়রানি', 'হতাশ', 
+    'হতাশা', 'অসুবিধা', 'বিপদ', 'অসুন্দর', 'ভুল', 'বিরক্তিকর', 'ঘৃণ্য', 'প্রতারণা',
+    'ঠকবাজ', 'জালিয়াতি', 'যন্ত্রণা'
+}
+
+IRONY_MARKERS = {
+    'বাহ', 'বাঃ', 'সাবাশ', 'দারুণ', 'অসাধারণ', 'খাসা', 'কী দারুণ', 'কী চমৎকার', 
+    'কী অসাধারণ', 'বটে', 'কী যে'
+}
+
 
 class UnifiedBanglaTextAnalyzer:
     """
     Unified Inference Engine coordinating TF-IDF+LR, BiLSTM, and BanglaBERT.
-    Supports lazy loading and cross-task context-aware aggregation.
+    Supports lazy loading and cross-task context aware aggregation.
     """
 
     def __init__(self, preload_models: bool = False):
@@ -88,7 +108,7 @@ class UnifiedBanglaTextAnalyzer:
 
     def analyze_ensemble(self, text: str) -> Dict[str, Any]:
         """
-        Proposal-Aligned Context-Aware Ensemble:
+        Proposal-Aligned Context Aware Ensemble:
         1. Hate Speech: Uses Word2Vec + BiLSTM (our winner paradigm: 88.52% Acc, 88.50% Macro-F1).
         2. Sarcasm: Evaluates TF-IDF+LR (Sarcastic marker sensitivity) and BanglaBERT soft probabilities.
            If Sarcasm is detected (LR says Sarcastic or BERT Sarcasm prob > 40% with contrast markers).
@@ -101,47 +121,73 @@ class UnifiedBanglaTextAnalyzer:
 
         cleaned = clean_bangla_text(text)
         tokens = tokenize_bangla(cleaned)
-        negation_tokens = [t for t in tokens if t in ["না", "নয়", "নেই", "নাহ", "কখনো না", "বিনা", "ছাড়া", "নাই"]]
+        negation_tokens = [t for t in tokens if t in ["না", "নয়", "নেই", "নাহ", "কখনো না", "বিনা", "ছাড়া", "নাই", "নি"]]
 
         # Run individual models
         lr_res = self.analyze_lr(text)
         bi_res = self.analyze_bilstm(text)
         bert_res = self.analyze_bert(text)
 
-        # 1. Hate Speech: BiLSTM is the benchmark champion (88.52% accuracy)
-        hate_label = bi_res["hate_speech"]["label"]
-        hate_conf = bi_res["hate_speech"]["confidence"]
-        hate_probs = bi_res["hate_speech"]["probabilities"]
+        # 1. Hate Speech: Weighted Consensus between BanglaBERT (91.6% F1) and BiLSTM (88.5% F1)
+        bert_hate_prob = bert_res["hate_speech"]["probabilities"].get("Hate Speech", 0.0)
+        bi_hate_prob = bi_res["hate_speech"]["probabilities"].get("Hate Speech", 0.0)
+        lr_hate_prob = lr_res["hate_speech"]["probabilities"].get("Hate Speech", 0.0)
 
-        # 2. Sarcasm Detection:
+        blended_hate_prob = round(0.50 * bert_hate_prob + 0.35 * bi_hate_prob + 0.15 * lr_hate_prob, 2)
+        is_hate = blended_hate_prob >= 50.0
+        hate_label = "Hate Speech" if is_hate else "Non-Hate"
+        hate_conf = blended_hate_prob if is_hate else round(100.0 - blended_hate_prob, 2)
+        hate_probs = {
+            "Non-Hate": round(100.0 - blended_hate_prob, 2),
+            "Hate Speech": blended_hate_prob
+        }
+
+        # 2. Sarcasm Detection (Multi-Model Consensus & Contrast Filtering):
         lr_sarc_label = lr_res["sarcasm"]["label"]
-        lr_sarc_conf = lr_res["sarcasm"]["confidence"]
+        bi_sarc_label = bi_res["sarcasm"]["label"]
+        bert_sarc_label = bert_res["sarcasm"]["label"]
+
+        lr_sarc_prob = lr_res["sarcasm"]["probabilities"].get("Sarcastic", 0.0)
+        bi_sarc_prob = bi_res["sarcasm"]["probabilities"].get("Sarcastic", 0.0)
         bert_sarc_prob = bert_res["sarcasm"]["probabilities"].get("Sarcastic", 0.0)
 
-        # Contrast markers (e.g. 'বাহ!', 'অসাধারণ' + negation 'না')
-        has_contrast_marker = ("বাহ" in text or "দারুণ" in text or "অসাধারণ" in text) and len(negation_tokens) > 0
+        blended_sarc_prob = round(0.45 * bert_sarc_prob + 0.35 * bi_sarc_prob + 0.20 * lr_sarc_prob, 2)
+        sarc_votes = sum([
+            1 if lr_sarc_label == "Sarcastic" else 0,
+            1 if bi_sarc_label == "Sarcastic" else 0,
+            1 if bert_sarc_label == "Sarcastic" else 0
+        ])
+
+        has_irony_cue = any(im in text for im in IRONY_MARKERS)
+        has_contrast_marker = (has_irony_cue or "অসাধারণ" in text or "দারুণ" in text) and len(negation_tokens) > 0
+        has_exclamation = ("!" in text or "!" in cleaned or "!!" in text)
 
         is_sarcastic = False
-        sarcasm_conf = 50.0
-
-        if lr_sarc_label == "Sarcastic":
+        if has_contrast_marker and (blended_sarc_prob >= 35.0 or sarc_votes >= 1):
+            # Classical praise + negation contradiction pattern
             is_sarcastic = True
-            sarcasm_conf = lr_sarc_conf
-        elif bert_sarc_prob >= 40.0 and has_contrast_marker:
+            sarcasm_conf = round(max(blended_sarc_prob, 65.0), 2)
+        elif (has_irony_cue or has_exclamation) and blended_sarc_prob >= 50.0 and sarc_votes >= 2:
+            # Multi-model consensus with expressive punctuation/irony markers
             is_sarcastic = True
-            sarcasm_conf = round(bert_sarc_prob, 2)
-        elif bi_res["sarcasm"]["label"] == "Sarcastic":
+            sarcasm_conf = blended_sarc_prob
+        elif sarc_votes == 3 and blended_sarc_prob >= 70.0 and has_exclamation:
+            # Unanimous strong agreement with expressive cue
             is_sarcastic = True
-            sarcasm_conf = bi_res["sarcasm"]["confidence"]
+            sarcasm_conf = blended_sarc_prob
         else:
             is_sarcastic = False
-            sarcasm_conf = round(max(lr_res["sarcasm"]["probabilities"]["Non-Sarcastic"],
-                                     bert_res["sarcasm"]["probabilities"]["Non-Sarcastic"]), 2)
+            # When filtered as Non-Sarcastic:
+            # If raw models were biased (>50%) but lacked irony/contrast markers, confidence of non-sarcasm is high
+            if blended_sarc_prob < 50.0:
+                sarcasm_conf = round(100.0 - blended_sarc_prob, 2)
+            else:
+                sarcasm_conf = round(max(85.0, 100.0 - (blended_sarc_prob - 50.0)), 2)
 
         sarcasm_label = "Sarcastic" if is_sarcastic else "Non-Sarcastic"
         sarcasm_binary = "Yes" if is_sarcastic else "No"
 
-        # 3. Sentiment Analysis (Context-Aware Multi-Model Blending):
+        # 3. Sentiment Analysis (Context Aware Tri-Model Blending + Semantic Inversion):
         lr_probs = lr_res["sentiment"]["probabilities"]
         bi_probs = bi_res["sentiment"]["probabilities"]
         bert_probs = bert_res["sentiment"]["probabilities"]
@@ -156,16 +202,31 @@ class UnifiedBanglaTextAnalyzer:
             for cls in classes
         }
 
+        pos_p = blended_probs.get("Positive", 0.0)
+        neg_p = blended_probs.get("Negative", 0.0)
+        neu_p = blended_probs.get("Neutral", 0.0)
+
+        has_pos = any(w in text for w in POS_WORDS)
+        has_neg = any(w in text for w in NEG_WORDS)
+
         context_inverted = False
         lr_sent_label = lr_res["sentiment"]["label"]
 
-        if is_sarcastic and len(negation_tokens) > 0 and lr_sent_label == "Positive":
+        if is_hate:
+            # Cross-task consistency: hate speech is inherently negative sentiment
+            final_sentiment = "Negative"
+            final_sent_conf = round(max(neg_p, hate_conf, 85.0), 2)
+        elif is_sarcastic and len(negation_tokens) > 0 and (has_pos or lr_sent_label == "Positive" or pos_p > neg_p):
             # Proposal Sarcasm Contrast Rule: Positive facade + Negative outcome = True Negative Sentiment
             final_sentiment = "Negative"
-            final_sent_conf = round(max(bert_probs.get("Negative", 0.0), blended_probs.get("Negative", 0.0), 65.0), 2)
+            final_sent_conf = round(max(bert_probs.get("Negative", 0.0), neg_p, 68.0), 2)
             context_inverted = True
+        elif not has_pos and not has_neg and not is_sarcastic:
+            # Factual / Objective / Everyday Statement (no emotional sentiment lexicon):
+            final_sentiment = "Neutral"
+            final_sent_conf = round(max(neu_p, 65.0), 2)
         else:
-            # Tri-model weighted consensus (enables robust Neutral, Positive & Negative detection)
+            # Tri-model weighted consensus
             final_sentiment = max(blended_probs, key=blended_probs.get)
             final_sent_conf = blended_probs[final_sentiment]
 
@@ -201,19 +262,23 @@ class UnifiedBanglaTextAnalyzer:
             "routing_explanation": (
                 "Sentiment: Resolved via BanglaBERT deep contextual contrast inversion. "
                 if context_inverted else
-                "Sentiment: Calibrated between keyword n-grams and BERT semantics. "
+                (
+                    "Sentiment: Identified as objective/factual neutral statement. "
+                    if final_sentiment == "Neutral" and not has_pos and not has_neg else
+                    "Sentiment: Calibrated between keyword n-grams and BERT semantics. "
+                )
             ) + (
-                "Sarcasm: Detected via TF-IDF stylistic cue sensitivity. "
+                "Sarcasm: Confirmed via cross-model irony/contrast sensitivity. "
                 if is_sarcastic else
-                "Sarcasm: Verified by concordant majority voting. "
-            ) + "Hate Speech: Evaluated via BiLSTM sequence classifier (88.5% benchmark accuracy)."
+                "Sarcasm: Cleared via robust consensus voting. "
+            ) + f"Hate Speech: Evaluated via BiLSTM & Transformer consensus ({hate_label})."
         }
 
     def analyze(self, raw_text: str, model_type: str = "ensemble") -> Dict[str, Any]:
         """
         Public inference API.
         model_type options:
-            - 'ensemble' (default, Context-Aware Multi-Task Routing)
+            - 'ensemble' (default, Context Aware Multi-Task Routing)
             - 'lr' (TF-IDF + Logistic Regression)
             - 'bilstm' (Word2Vec + Stacked BiLSTM)
             - 'bert' (Fine-Tuned BanglaBERT)
@@ -241,7 +306,7 @@ if __name__ == "__main__":
     ]
 
     print("\n" + "=" * 80)
-    print("UNIFIED CONTEXT-AWARE INFERENCE ENGINE VERIFICATION")
+    print("UNIFIED CONTEXT AWARE INFERENCE ENGINE VERIFICATION")
     print("=" * 80)
 
     for sample in benchmark_samples:

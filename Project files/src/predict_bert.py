@@ -4,7 +4,7 @@ Lead: Md. Tariful Islam Jony (ID: 2107119)
 
 Loads fine-tuned BanglaBERT sequence classification heads from:
 'Project files/saved_models/banglabert_{task}/'
-to deliver context-aware real-time predictions on raw Bengali text for:
+to deliver context aware real-time predictions on raw Bengali text for:
 1. Sentiment Analysis (Negative, Neutral, Positive)
 2. Sarcasm Detection (Non-Sarcastic, Sarcastic)
 3. Hate Speech Detection (Non-Hate, Hate Speech)

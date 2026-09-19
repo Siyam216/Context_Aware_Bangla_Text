@@ -1,7 +1,7 @@
 @echo off
-title Context-Aware Bangla Text Analyzer (CSE 4121)
+title Context Aware Bangla Text Analyzer (CSE 4121)
 echo ======================================================================
-echo Launching Context-Aware Bangla Text Analyzer (Streamlit App)...
+echo Launching Context Aware Bangla Text Analyzer (Streamlit App)...
 echo Dept. of CSE, KUET
 echo ======================================================================
 echo.

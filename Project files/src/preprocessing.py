@@ -1,5 +1,5 @@
 """
-Preprocessing, Tokenization and Lexical Module for Context-Aware Bangla Text Analyzer.
+Preprocessing, Tokenization and Lexical Module for Context Aware Bangla Text Analyzer.
 Implements:
 - Lab 1: Regular Expressions, Text Cleaning & Bengali Word Tokenization.
 - Lab 2: N-gram generation and Stop-words filtering with negation preservation.

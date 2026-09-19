@@ -9,7 +9,7 @@ from PIL import Image
 # Page Configuration
 st.set_page_config(
     page_title="Bangla Text Analyzer | CSE 4122",
-    page_icon="🇧🇩",
+    page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -167,7 +167,7 @@ with st.spinner("⏳ Loading NLP Models (TF-IDF + LR, BiLSTM, BanglaBERT)... Ple
 # Top Header Banner
 st.markdown("""
 <div class="main-header">
-    <div class="main-title">🇧🇩 Context-Aware Bangla Text Analyzer</div>
+    <div class="main-title">Context Aware Bangla Text Analyzer</div>
     <div class="sub-title">
         Multi-Task Detection of <b>Sentiment</b>, <b>Sarcasm</b>, and <b>Hate Speech</b> across 3 Distinct Modeling Paradigms<br>
         <b>CSE 4122: NLP Sessional</b> | Dept. of CSE, KUET
@@ -192,18 +192,17 @@ with st.sidebar:
     - ⚡ **TF-IDF + Logistic Regression**
     - 🔄 **Word2Vec (128-d) + Stacked BiLSTM**
     - 🤖 **Pretrained BanglaBERT Transformer**
-    - 🧠 **Context-Aware Best Ensemble**
+    - 🧠 **Context Aware Best Ensemble**
     ---
     """)
     st.info("💡 **Key Academic Insight:** No single model wins all tasks. TF-IDF excels at keyword sentiment, BiLSTM dominates Hate Speech (88.5%), and BanglaBERT captures deep sarcasm contrast!")
 
 # Main Tabs
-tab_live, tab_benchmark, tab_eda, tab_matrices, tab_about = st.tabs([
+tab_live, tab_benchmark, tab_eda, tab_matrices = st.tabs([
     "🚀 Live Multi-Task Analyzer",
     "📊 Master Benchmark Matrix",
     "📈 Dataset & EDA Statistics",
-    "🎯 Confusion Matrices",
-    "ℹ️ Project & Team Details"
+    "🎯 Confusion Matrices"
 ])
 
 # -------------------------------------------------------------------------------------------------
@@ -214,7 +213,7 @@ with tab_live:
     model_choice = st.radio(
         "Select Inference Engine:",
         [
-            "🧠 Context-Aware Ensemble (Recommended)",
+            "🧠 Context Aware Ensemble (Recommended)",
             "⚡ TF-IDF + Logistic Regression",
             "🔄 Word2Vec + Stacked BiLSTM",
             "🤖 Fine-Tuned BanglaBERT"
@@ -352,27 +351,29 @@ with tab_live:
                 bi_pred = analyzer.analyze_bilstm(user_text)
                 bert_pred = analyzer.analyze_bert(user_text)
 
+                ens_res = result if is_ensemble else analyzer.analyze(user_text, model_type="ensemble")
+
                 comparison_data = [
                     {
                         "Task": "Sentiment",
                         "TF-IDF + Logistic Regression": f"{lr_pred['sentiment']['label']} ({lr_pred['sentiment']['confidence']}%)",
                         "Word2Vec + Stacked BiLSTM": f"{bi_pred['sentiment']['label']} ({bi_pred['sentiment']['confidence']}%)",
                         "Fine-Tuned BanglaBERT": f"{bert_pred['sentiment']['label']} ({bert_pred['sentiment']['confidence']}%)",
-                        "Best Consensus / Context": "Negative (Context Inverted)" if "না" in user_text and "বাহ" in user_text else bert_pred['sentiment']['label']
+                        "Best Consensus / Context": f"{ens_res['sentiment']['label']} ({ens_res['sentiment']['confidence']}%)" + (" [Context Inverted]" if ens_res['sentiment'].get('context_inverted') else "")
                     },
                     {
                         "Task": "Sarcasm",
                         "TF-IDF + Logistic Regression": f"{lr_pred['sarcasm']['label']} ({lr_pred['sarcasm']['confidence']}%)",
                         "Word2Vec + Stacked BiLSTM": f"{bi_pred['sarcasm']['label']} ({bi_pred['sarcasm']['confidence']}%)",
                         "Fine-Tuned BanglaBERT": f"{bert_pred['sarcasm']['label']} ({bert_pred['sarcasm']['confidence']}%)",
-                        "Best Consensus / Context": "Sarcastic (TF-IDF Cue)" if lr_pred['sarcasm']['label'] == 'Sarcastic' else "Non-Sarcastic"
+                        "Best Consensus / Context": f"{ens_res['sarcasm']['label']} ({ens_res['sarcasm']['confidence']}%)"
                     },
                     {
                         "Task": "Hate Speech",
                         "TF-IDF + Logistic Regression": f"{lr_pred['hate_speech']['label']} ({lr_pred['hate_speech']['confidence']}%)",
                         "Word2Vec + Stacked BiLSTM": f"{bi_pred['hate_speech']['label']} ({bi_pred['hate_speech']['confidence']}%)",
                         "Fine-Tuned BanglaBERT": f"{bert_pred['hate_speech']['label']} ({bert_pred['hate_speech']['confidence']}%)",
-                        "Best Consensus / Context": bi_pred['hate_speech']['label'] + " (BiLSTM Winner)"
+                        "Best Consensus / Context": f"{ens_res['hate_speech']['label']} ({ens_res['hate_speech']['confidence']}%)"
                     }
                 ]
 
@@ -522,33 +523,6 @@ with tab_matrices:
     with m_tab3:
         if os.path.exists(cm_bert):
             st.image(Image.open(cm_bert), caption="Figure 7: Confusion Matrices for Fine-Tuned BanglaBERT Classifiers", use_container_width=True)
-
-# -------------------------------------------------------------------------------------------------
-# TAB 5: ABOUT & TEAM
-# -------------------------------------------------------------------------------------------------
-with tab_about:
-    st.subheader("🎓 Project Background & Team Credits")
-    st.markdown("""
-    ### 🏛️ Academic Institutional Context
-    - **Course:** CSE 4122 (Natural Language Processing Sessional)
-    - **Academic Year:** 4th Year, 1st Term (CSE 4-1)
-    - **Institution:** Department of Computer Science & Engineering, KUET
-    
-    ---
-    ### 👥 Project Members & Lead Division
-    | Member Name | Student Roll | Core Responsibility |
-    | :--- | :---: | :--- |
-    | **Md. Tariful Islam Jony** | **2107119** | Phase 1 (Data Cleaning), Phase 3 (TF-IDF + LR), Phase 5 (BanglaBERT Fine-Tuning) |
-    | **Siyam Khan** | **2107120** | Phase 2 (Tokenization & EDA), Phase 4 (Word2Vec + BiLSTM), Phase 6 (Streamlit Dashboard & Master Notebook) |
-    
-    ---
-    ### 🔗 Integration with CSE 4122 Lab Syllabus
-    - **Lab 1 (Text Normalization):** Bengali Unicode regex cleaning, negation preservation, zero-width stripping.
-    - **Lab 2 (N-Gram & TF-IDF):** Unigram + Bigram sublinear TF-IDF vectorization (20,000 features).
-    - **Lab 3 (Embeddings & Logistic Regression):** Balanced discriminative classification and dense 128-d PPMI-SVD Word2Vec.
-    - **Lab 4 (Recurrent Sequence Models):** PyTorch 2-layer Stacked Bidirectional LSTM with dropout.
-    - **Lab 5 (Transformers & Pretrained Encoders):** Hugging Face `sagorsarker/bangla-bert-base` contextual adaptation.
-    """)
 
 # Footer
 st.markdown("---")

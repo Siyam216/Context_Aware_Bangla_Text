@@ -4,7 +4,7 @@ Lead: Siyam Khan (ID: 2107120)
 
 Loads pre-trained Word2Vec embeddings ('bangla_word2vec.pt'), vocabulary ('word2idx.json'),
 and trained BiLSTM checkpoints ('bilstm_{task}.pt') from 'Project files/saved_models/'
-to deliver context-aware real-time predictions on raw Bengali text for:
+to deliver context aware real-time predictions on raw Bengali text for:
 1. Sentiment Analysis (Negative, Neutral, Positive)
 2. Sarcasm Detection (Non-Sarcastic, Sarcastic)
 3. Hate Speech Detection (Non-Hate, Hate Speech)

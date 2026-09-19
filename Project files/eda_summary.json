@@ -274,6 +274,19 @@
       "overlap_count": 5791,
       "leakage_percentage": 25.4,
       "status": "WARNING"
+    },
+    "train": {
+      "total_sentences": 109229,
+      "length_stats": {
+        "median_words": 10.0,
+        "p95_words": 45.0
+      }
+    },
+    "val": {
+      "total_sentences": 15569
+    },
+    "test": {
+      "total_sentences": 31212
     }
   },
   "sarcasm": {
@@ -545,6 +558,19 @@
       "overlap_count": 16,
       "leakage_percentage": 1.32,
       "status": "PASS (Clean Split)"
+    },
+    "train": {
+      "total_sentences": 9671,
+      "length_stats": {
+        "median_words": 11.0,
+        "p95_words": 32.0
+      }
+    },
+    "val": {
+      "total_sentences": 1209
+    },
+    "test": {
+      "total_sentences": 1209
     }
   },
   "hate_speech": {
@@ -816,6 +842,19 @@
       "overlap_count": 19,
       "leakage_percentage": 0.38,
       "status": "PASS (Clean Split)"
+    },
+    "train": {
+      "total_sentences": 40217,
+      "length_stats": {
+        "median_words": 8.0,
+        "p95_words": 38.0
+      }
+    },
+    "val": {
+      "total_sentences": 5027
+    },
+    "test": {
+      "total_sentences": 5028
     }
   }
 }

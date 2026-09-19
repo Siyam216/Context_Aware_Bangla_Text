@@ -75,7 +75,7 @@ def main():
 
     # Interactive loop:
     print("=" * 80)
-    print(" CONTEXT-AWARE BANGLA TEXT ANALYZER - INTERACTIVE CONSOLE")
+    print(" CONTEXT AWARE BANGLA TEXT ANALYZER - INTERACTIVE CONSOLE")
     print(" Type any Bangla sentence to analyze, or type 'exit' or 'q' to quit.")
     print("=" * 80)
 

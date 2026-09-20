@@ -29,17 +29,20 @@ from predict_bert import BanglaTextAnalyzerBERT
 
 # Sentiment Lexicon anchors for factual neutral detection
 POS_WORDS = {
-    'ভালো', 'চমৎকার', 'সুন্দর', 'অসাধারণ', 'সেরা', 'ধন্যবাদ', 'ভালোবাসি', 'উপকারী', 
+    'ভালো', 'চমৎকার', 'সুন্দর', 'অসাধারণ', 'অসাধারন', 'সেরা', 'ধন্যবাদ', 'ভালোবাসি', 'উপকারী', 
     'দারুণ', 'আনন্দ', 'পছন্দ', 'খুশি', 'সন্তুষ্ট', 'সফল', 'অপূর্ব', 'দারুন', 'ভালোই', 
     'উপকার', 'সাধুবাদ', 'প্রশংসা', 'আরামদায়ক', 'উপভোগ', 'প্রিয়', 'উৎকৃষ্ট', 'ভালোবাসা',
-    'লাভজনক', 'সুনাম', 'মিষ্টি'
+    'লাভজনক', 'সুনাম', 'মিষ্টি', 'ফাটাফাটি', 'জটিল', 'জোশ', 'মুগ্ধ', 'ভালোলাগা', 'মনোরম',
+    'মনোমুগ্ধকর', 'চরম', 'উপভোগ্য', 'প্রশংসনীয়', 'শুভকামনা', 'অনবদ্য', 'দুর্দান্ত', 'সুপার',
+    'গ্রেট', 'খাসা', 'সাবাস', 'সাবাশ'
 }
 
 NEG_WORDS = {
     'খারাপ', 'বাজে', 'জঘন্য', 'ফালতু', 'বিরক্ত', 'কষ্ট', 'দুঃখ', 'লজ্জা', 'ক্ষতি', 
     'ব্যর্থ', 'অসহ্য', 'ঘৃণা', 'নষ্ট', 'ঠকা', 'ধোঁকা', 'অপদার্থ', 'হয়রানি', 'হতাশ', 
     'হতাশা', 'অসুবিধা', 'বিপদ', 'অসুন্দর', 'ভুল', 'বিরক্তিকর', 'ঘৃণ্য', 'প্রতারণা',
-    'ঠকবাজ', 'জালিয়াতি', 'যন্ত্রণা'
+    'ঠকবাজ', 'জালিয়াতি', 'যন্ত্রণা', 'ঘটিয়া', 'ছাইপাশ', 'আবর্জনা', 'ঘেন্না', 'বিরক্তি',
+    'অসহনীয়'
 }
 
 IRONY_MARKERS = {
@@ -206,6 +209,23 @@ class UnifiedBanglaTextAnalyzer:
         neg_p = blended_probs.get("Negative", 0.0)
         neu_p = blended_probs.get("Neutral", 0.0)
 
+        # Count individual model votes
+        pos_votes = sum([
+            1 if lr_res["sentiment"]["label"] == "Positive" else 0,
+            1 if bi_res["sentiment"]["label"] == "Positive" else 0,
+            1 if bert_res["sentiment"]["label"] == "Positive" else 0
+        ])
+        neg_votes = sum([
+            1 if lr_res["sentiment"]["label"] == "Negative" else 0,
+            1 if bi_res["sentiment"]["label"] == "Negative" else 0,
+            1 if bert_res["sentiment"]["label"] == "Negative" else 0
+        ])
+        neu_votes = sum([
+            1 if lr_res["sentiment"]["label"] == "Neutral" else 0,
+            1 if bi_res["sentiment"]["label"] == "Neutral" else 0,
+            1 if bert_res["sentiment"]["label"] == "Neutral" else 0
+        ])
+
         has_pos = any(w in text for w in POS_WORDS)
         has_neg = any(w in text for w in NEG_WORDS)
 
@@ -216,15 +236,28 @@ class UnifiedBanglaTextAnalyzer:
             # Cross-task consistency: hate speech is inherently negative sentiment
             final_sentiment = "Negative"
             final_sent_conf = round(max(neg_p, hate_conf, 85.0), 2)
-        elif is_sarcastic and len(negation_tokens) > 0 and (has_pos or lr_sent_label == "Positive" or pos_p > neg_p):
+        elif is_sarcastic and len(negation_tokens) > 0 and (has_pos or lr_sent_label == "Positive" or pos_p > neg_p or pos_votes >= 1):
             # Proposal Sarcasm Contrast Rule: Positive facade + Negative outcome = True Negative Sentiment
             final_sentiment = "Negative"
             final_sent_conf = round(max(bert_probs.get("Negative", 0.0), neg_p, 68.0), 2)
             context_inverted = True
-        elif not has_pos and not has_neg and not is_sarcastic:
-            # Factual / Objective / Everyday Statement (no emotional sentiment lexicon):
+        elif pos_votes >= 2 or (pos_p > neg_p and (has_pos or pos_p >= 40.0)):
+            # Positive: Multi-model consensus or strong positive probability
+            final_sentiment = "Positive"
+            final_sent_conf = pos_p
+        elif (neg_votes >= 2 and (has_neg or len(negation_tokens) > 0 or "খারাপ" in text or "বাজে" in text)) or (has_neg and neg_p > pos_p):
+            # Genuine Negative confirmed by negative vocabulary or negation
+            final_sentiment = "Negative"
+            final_sent_conf = neg_p
+        elif neu_votes >= 2 or (neu_p > pos_p and neu_p > neg_p):
+            # Explicit Neutral consensus among models
             final_sentiment = "Neutral"
-            final_sent_conf = round(max(neu_p, 65.0), 2)
+            final_sent_conf = neu_p
+        elif not has_pos and not has_neg and not is_sarcastic and len(negation_tokens) == 0:
+            # Factual / Objective Everyday Statement (e.g., 'আমি ভাত খাই', 'ঢাকা বাংলাদেশের রাজধানী')
+            # Text contains zero sentiment polarity cues; resolves review-dataset false negative bias
+            final_sentiment = "Neutral"
+            final_sent_conf = round(max(neu_p, 68.0), 2)
         else:
             # Tri-model weighted consensus
             final_sentiment = max(blended_probs, key=blended_probs.get)

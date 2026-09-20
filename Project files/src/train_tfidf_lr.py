@@ -1,23 +1,3 @@
-"""
-Phase 3: TF-IDF Feature Extraction & Logistic Regression Classifiers
-Lead: Md. Tariful Islam Jony (ID: 2107119)
-Academic Mapping: Lab 2 (TF-IDF Vectorization) & Lab 3 (Discriminative Logistic Regression)
-
-This script:
-1. Loads cleaned datasets (train, val, test) for:
-   - Sentiment (3 classes: Negative=0, Neutral=1, Positive=2)
-   - Sarcasm (Binary: Non-Sarcastic=0, Sarcastic=1)
-   - Hate Speech (Binary: Non-Hate=0, Hate=1)
-2. Fits TfidfVectorizer (unigram + bigram, sublinear_tf=True, custom Bengali token pattern) strictly on train.csv.
-3. Transforms train, val, and test splits without data leakage.
-4. Trains LogisticRegression with class_weight='balanced' for each task to address class imbalances.
-5. Evaluates on validation and test sets (Accuracy, Macro Precision/Recall/F1, Weighted F1, Confusion Matrix).
-6. Serializes all vectorizers and models into 'Project files/saved_models/' with joblib.
-7. Saves detailed benchmark metrics into 'Project files/results_tfidf_lr.json'.
-8. Generates high-res confusion matrix figures in 'Project files/eda_plots/confusion_matrices_lr.png'.
-9. Verifies sub-millisecond inference and test benchmarks.
-"""
-
 import os
 import sys
 import time

@@ -1,8 +1,4 @@
 """
-Phase 4: Word2Vec Dense Embeddings Generator (PPMI + SVD Dense Skip-Gram Factorization)
-Lead: Siyam Khan (ID: 2107120)
-Academic Mapping: Lab 3 (Word2Vec Embeddings) & Lab 4 (PyTorch Pretrained Embeddings)
-
 This module:
 1. Collects a unified corpus across all 3 training splits (Sentiment, Sarcasm, Hate Speech).
 2. Builds a comprehensive vocabulary of the top 20,000 words (+ <PAD>=0, <UNK>=1).
@@ -45,7 +41,6 @@ TOKEN_PATTERN = re.compile(r'[\u0980-\u09FFa-zA-Z0-9]+|[!?]')
 
 def train_word2vec_embeddings():
     print("=" * 65)
-    print("  PHASE 4.1: BANGLA WORD2VEC DENSE EMBEDDINGS (PPMI-SVD)")
     print("=" * 65)
     t_start = time.time()
 

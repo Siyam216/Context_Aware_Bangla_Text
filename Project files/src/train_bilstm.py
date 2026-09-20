@@ -1,19 +1,3 @@
-"""
-Phase 4: Word2Vec + PyTorch Stacked BiLSTM Sequence Modeling
-Lead: Siyam Khan (ID: 2107120)
-Academic Mapping: Lab 3 (Word2Vec Embeddings) & Lab 4 (PyTorch Recurrent Sequence Models)
-
-This script:
-1. Loads pre-trained Word2Vec embeddings ('bangla_word2vec.pt') and vocabulary ('word2idx.json').
-2. Prepares PyTorch TensorDatasets and DataLoaders for Sentiment, Sarcasm, and Hate Speech.
-3. Implements StackedBiLSTMClassifier (2-layer bidirectional LSTM, hidden_dim=64, dropout=0.3).
-4. Trains with class-weighted CrossEntropyLoss to address severe class imbalance.
-5. Saves the best model checkpoints to 'Project files/saved_models/bilstm_{task}.pt'.
-6. Evaluates test performance (Accuracy, Macro F1, Weighted F1, Confusion Matrix).
-7. Exports results to 'Project files/results_bilstm.json'.
-8. Generates high-res confusion matrix heatmap in 'Project files/eda_plots/confusion_matrices_bilstm.png'.
-"""
-
 import os
 import sys
 import time
